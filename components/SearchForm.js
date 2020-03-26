@@ -54,6 +54,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(SearchForm);
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingTop: getStatusBarHeight() + 20,

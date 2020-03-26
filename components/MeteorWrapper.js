@@ -1,30 +1,46 @@
 import React from 'react';
-import { StyleSheet, View, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import DayWidget from './DayWidget';
 import FiveDaysWidget from './FiveDaysWidget';
 
 import SearchForm from './SearchForm';
 import BackgroundApp from './BackgroundApp';
+import LoaderApp from './LoaderApp';
 
-var width = Dimensions.get('window').width; //full width
-var height = Dimensions.get('window').height; //full height
 export default class MeteorWrapper extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            spinner: false
+        };
+    }
+
+    componentDidMount() {
+        setTimeout(() => {
+            this.setState({
+                spinner: !this.state.spinner
+            });
+        }, 3000);
     }
 
     render() {
         return (
-            <ScrollView>
-                <View style={styles.container}>
-                    <BackgroundApp />
-                    <SearchForm />
-                    <DayWidget />
-                    <FiveDaysWidget />
-                </View>
-            </ScrollView>
+            <>
+                {!this.state.spinner ? (
+                    < LoaderApp
+                        visible={this.state.spinner}
+                    />
+                ) : (
+                        <View style={styles.container}>
+                            <BackgroundApp />
+                            <SearchForm />
+                            <DayWidget />
+                            <FiveDaysWidget />
+                        </View>
+                    )}
+            </>
         )
     }
 

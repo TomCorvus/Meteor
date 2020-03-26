@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, StatusBar } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import MeteorWrapper from '../components/MeteorWrapper';
 
 export default function Home() {
@@ -13,6 +13,8 @@ export default function Home() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#26272c"
+        backgroundColor: "#26272c",
+        alignItems: "stretch",
+        flexDirection: 'column',
     },
 });

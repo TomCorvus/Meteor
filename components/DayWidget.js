@@ -66,14 +66,14 @@ class DayWidget extends React.Component {
         if (prevProps.geolocation !== this.props.geolocation) this.getTodayWeather(this.props.geolocation);
     }
 
-    componentDidMount() {
+    async componentDidMount() {
 
-        Geolocation.getCurrentPosition((info) => {
+        await Geolocation.getCurrentPosition((info) => {
 
             let latitude = info.coords.latitude;
             let longitude = info.coords.longitude;
 
-            return fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
+            fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
                 .then((response) => response.json())
                 .then((responseJson) => {
                     this.setState({ dayInformation: responseJson })
@@ -194,9 +194,11 @@ function mapDispatchToProps(dispatch) {
 
 const styles = StyleSheet.create({
     container: {
+        // flex: 1
         // backgroundColor: "#7B8FE8",
     },
     widget: {
+        // opacity: 0
         // backgroundColor: "#87BDFF"
     },
     header: {

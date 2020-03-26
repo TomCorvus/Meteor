@@ -1,4 +1,5 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { Provider } from "react-redux";
 import { createStore } from "redux";
 import { composeWithDevTools } from 'redux-devtools-extension';
@@ -8,8 +9,14 @@ import MeteorReducer from "./reducers/MeteorReducers";
 
 const store = createStore(MeteorReducer, composeWithDevTools());
 
-export default function App() {
-  return (
-    <Provider store={store}><Home /></Provider>
-  );
+export default class App extends React.Component {
+
+  render() {
+    return (
+      <Provider store={store}>
+        <Home />
+      </Provider>
+    );
+  }
+
 }

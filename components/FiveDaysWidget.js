@@ -108,12 +108,14 @@ class FiveDaysWidget extends React.Component {
     render() {
 
         return (
-            <View style={styles.container} >
+            <View style={styles.container}>
                 {this.state.fiveDaysInformation !== undefined &&
                     this.state.fiveDaysAverageWeather !== undefined &&
-                    this.state.fiveDaysAverageWeather.map((number) =>
-                        <FiveDaysElement key={number.id} date={number.date} icon={number.icon} averageTemp={number.averageTemp} weather={number.weather} weekDay={number.weekDay} />
-                    )
+                    <View style={styles.widget}>
+                        {this.state.fiveDaysAverageWeather.map((number) =>
+                            <FiveDaysElement key={number.id} date={number.date} icon={number.icon} averageTemp={number.averageTemp} weather={number.weather} weekDay={number.weekDay} />
+                        )}
+                    </View>
                 }
             </View>
 
@@ -124,13 +126,13 @@ class FiveDaysWidget extends React.Component {
         if (prevProps.geolocation !== this.props.geolocation) this.getFiveDaysWeather(this.props.geolocation);
     }
 
-    componentDidMount() {
-        Geolocation.getCurrentPosition((info) => {
+    async componentDidMount() {
+        await Geolocation.getCurrentPosition((info) => {
 
             let latitude = info.coords.latitude;
             let longitude = info.coords.longitude;
 
-            return fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
+            fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
                 .then((response) => response.json())
                 .then((responseJson) => {
                     let test = this.getAverageWeather(responseJson.list);
@@ -160,7 +162,12 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: "space-around",
         paddingTop: 10,
-        paddingBottom: 10
+        paddingBottom: 10,
+        // flex: 1
+    },
+    widget: {
+        // opacity: 0
+        // backgroundColor: "#87BDFF"
     }
 });
 
