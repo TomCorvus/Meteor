@@ -1,61 +1,133 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, Image, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-import BackgroundApp from './BackgroundApp';
-
-var width = Dimensions.get('window').width; //full width
-var height = Dimensions.get('window').height; //full height
 
 export default class DayWidget extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { location: this.props.location }
+        this.state = { dayInformation: undefined }
+    }
+
+    getTodayWeather(geolocation) {
+
+        return fetch('http://api.openweathermap.org/data/2.5/weather?q=' + geolocation + '&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr')
+            .then((response) => response.json())
+            .then((responseJson) => {
+                this.setState({ dayInformation: responseJson })
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+
+    }
+
+    getKilometerPerHour(windSpeed) {
+
+        windSpeed = windSpeed * 3600;
+        windSpeed = windSpeed / 1000;
+        return windSpeed;
+
+    }
+
+    getIcon() {
+        const type = this.state.dayInformation.weather[0].main;
+        console.log(type);
+
+        let image;
+        // switch(type) {
+        //     case ''
+        //     image = ""
+        //      break;
+        // }
+
+    }
+
+    getTimeWithUTC(timestamp) {
+        let date = new Date(timestamp * 1000),
+            ho = (date.getHours() < 10 ? '0' : '') + date.getHours(),
+            mi = (date.getMinutes() < 10 ? '0' : '') + date.getMinutes(),
+            formatTime = `${ho}:${mi}`;
+
+        return formatTime;
+    }
+
+    componentDidMount() {
+        this.getTodayWeather("Les Angles");
     }
 
     render() {
+
+        if (this.state.dayInformation !== undefined) {
+            var minTemp = Math.round(this.state.dayInformation.main.temp_min);
+            var maxTemp = Math.round(this.state.dayInformation.main.temp_max);
+            var feelsLike = Math.round(this.state.dayInformation.main.feels_like);
+
+            var sunriseTime = this.getTimeWithUTC(this.state.dayInformation.sys.sunrise);
+            var sunsetTime = this.getTimeWithUTC(this.state.dayInformation.sys.sunset);
+
+            var windSpeed = Math.round(this.getKilometerPerHour(this.state.dayInformation.wind.speed));
+
+            this.getIcon();
+        }
+
         return (
             <View style={styles.container} >
-                <View style={styles.widget} >
-                    <Text style={styles.city}>{this.state.location.name}</Text>
-                    <Text><Image style={{ width: 50, height: 50 }} source={{ uri: "http://openweathermap.org/img/w/" + this.state.location.weather[0].icon + ".png" }} /> {this.state.location.weather[0].description}</Text>
-                    <Text>Température: {Math.round(this.state.location.main.temp)} °</Text>
-                    <Text>Ressenti: {this.state.location.main.feels_like} °</Text>
-                    <Text>Minimum: {this.state.location.main.temp_min} °</Text>
-                    <Text>Maximum: {this.state.location.main.temp_max}°</Text>
-                    <Text>Pression: {this.state.location.main.pressure} hPa</Text>
-                    <Text>Humidité: {this.state.location.main.humidity} %</Text>
-                    <Text><MaterialCommunityIcons name="weather-windy" size={16} color="black" /> Vitesse vent: {this.state.location.wind.speed} m/s</Text>
-                    <Text>Degré vent: {this.state.location.wind.deg} deg</Text>
-                    <Text><MaterialCommunityIcons name="weather-sunset-up" size={16} color="black" /> Levé de soleil: {this.state.location.sys.sunrise} UTC</Text>
-                    <Text><MaterialCommunityIcons name="weather-sunset-down" size={16} color="black" /> Couché de soleil: {this.state.location.sys.sunset} UTC</Text>
-                </View>
+                {this.state.dayInformation !== undefined &&
+                    <View style={styles.widget} >
+
+                        <Text style={styles.city}>{this.state.dayInformation.name}</Text>
+
+                        <View style={styles.iconWrapper}>
+                            <Image style={styles.icon} source={{ uri: "http://openweathermap.org/img/wn/" + this.state.dayInformation.weather[0].icon + "@2x.png" }} />
+                        </View>
+
+                        <Text style={styles.description}>{this.state.dayInformation.weather[0].description}</Text>
+
+                        <Text>Température: {Math.round(this.state.dayInformation.main.temp)}°</Text>
+                        <Text>Ressenti: {feelsLike}°</Text>
+                        <Text>Minimum: {minTemp}°</Text>
+                        <Text>Maximum: {maxTemp}°</Text>
+                        <Text>Pression: {this.state.dayInformation.main.pressure} hPa</Text>
+                        <Text>Humidité: {this.state.dayInformation.main.humidity} %</Text>
+                        <Text><MaterialCommunityIcons name="weather-windy" size={16} color="black" /> Vitesse vent: {windSpeed} km/h</Text>
+                        <Text>Degré vent: {this.state.dayInformation.wind.deg} deg</Text>
+                        <Text><MaterialCommunityIcons name="weather-sunset-up" size={16} color="black" /> Levé de soleil: {sunriseTime}</Text>
+                        <Text><MaterialCommunityIcons name="weather-sunset-down" size={16} color="black" /> Couché de soleil: {sunsetTime}</Text>
+
+                    </View>
+                }
             </View>
         )
     }
-
-    componentDidUpdate(prevProps) {
-        if (this.props.location !== prevProps.location) {
-            this.setState({ location: this.props.location });
-        }
-    }
-
-
 
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        width: width,
-        alignItems: 'center'
+        flex: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: "red"
     },
     widget: {
         flex: 1,
-        zIndex: 1
+        justifyContent: 'center',
     },
     city: {
-        fontSize: 20
+        fontSize: 20,
+        textAlign: "center"
+    },
+    iconWrapper: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    icon: {
+        width: 50,
+        height: 50
+    },
+    description: {
+        textAlign: "center",
+        fontSize: 14
     }
 });
