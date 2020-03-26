@@ -2,6 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
+import Geolocation from '@react-native-community/geolocation';
+
 export default class DayWidget extends React.Component {
 
     constructor(props) {
@@ -60,7 +62,22 @@ export default class DayWidget extends React.Component {
     }
 
     componentDidMount() {
-        this.getTodayWeather("Les Angles");
+
+        Geolocation.getCurrentPosition((info) => {
+
+            let latitude = info.coords.latitude;
+            let longitude = info.coords.longitude;
+
+            return fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
+                .then((response) => response.json())
+                .then((responseJson) => {
+                    this.setState({ dayInformation: responseJson })
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        });
+
     }
 
     render() {
@@ -80,80 +97,80 @@ export default class DayWidget extends React.Component {
 
         return (
             <View style={styles.container}>
-                  {this.state.dayInformation !== undefined &&
-                        <View style={styles.widget}>
+                {this.state.dayInformation !== undefined &&
+                    <View style={styles.widget}>
 
-                            <View style={styles.header}>
-                                <Text style={styles.city}>{this.state.dayInformation.name}</Text>
-                                <Text style={styles.description}>{this.state.dayInformation.weather[0].description}</Text>
+                        <View style={styles.header}>
+                            <Text style={styles.city}>{this.state.dayInformation.name}</Text>
+                            <Text style={styles.description}>{this.state.dayInformation.weather[0].description}</Text>
+                        </View>
+
+                        <View style={styles.iconWrapper}>
+                            <Text style={styles.temperature}>{Math.round(this.state.dayInformation.main.temp)}°</Text>
+                            <Image style={styles.icon} source={{ uri: "http://openweathermap.org/img/wn/" + this.state.dayInformation.weather[0].icon + "@2x.png" }} />
+                        </View>
+
+                        <View style={styles.infoWrapper}>
+
+                            <View style={styles.infoRow}>
+                                <View style={styles.infoBox}>
+                                    <Text style={styles.infoBoxTitle}>Minimum</Text>
+                                    <Text style={styles.infoBoxValue}>{minTemp}°</Text>
+                                </View>
+                                <View style={styles.infoBox}>
+                                    <Text style={styles.infoBoxTitle}>Maximum</Text>
+                                    <Text style={styles.infoBoxValue}>{maxTemp}°</Text>
+                                </View>
                             </View>
 
-                            <View style={styles.iconWrapper}>
-                                <Text style={styles.temperature}>{Math.round(this.state.dayInformation.main.temp)}°</Text>
-                                <Image style={styles.icon} source={{ uri: "http://openweathermap.org/img/wn/" + this.state.dayInformation.weather[0].icon + "@2x.png" }} />
+                            <View style={styles.infoRow}>
+                                <View style={styles.infoBox}>
+                                    <Text style={styles.infoBoxTitle}>Visibilité</Text>
+                                    <Text style={styles.infoBoxValue}>{visibility} km</Text>
+                                </View>
+                                <View style={styles.infoBox}>
+                                    <Text style={styles.infoBoxTitle}>Ressenti</Text>
+                                    <Text style={styles.infoBoxValue}>{feelsLike}°</Text>
+                                </View>
                             </View>
 
-                            <View style={styles.infoWrapper}>
-
-                                <View style={styles.infoRow}>
-                                    <View style={styles.infoBox}>
-                                        <Text style={styles.infoBoxTitle}>Minimum</Text>
-                                        <Text style={styles.infoBoxValue}>{minTemp}°</Text>
-                                    </View>
-                                    <View style={styles.infoBox}>
-                                        <Text style={styles.infoBoxTitle}>Maximum</Text>
-                                        <Text style={styles.infoBoxValue}>{maxTemp}°</Text>
-                                    </View>
+                            <View style={styles.infoRow}>
+                                <View style={styles.infoBox}>
+                                    <Text style={styles.infoBoxTitle}>Pression</Text>
+                                    <Text style={styles.infoBoxValue}>{this.state.dayInformation.main.pressure} hPa</Text>
                                 </View>
-
-                                <View style={styles.infoRow}>
-                                    <View style={styles.infoBox}>
-                                        <Text style={styles.infoBoxTitle}>Visibilité</Text>
-                                        <Text style={styles.infoBoxValue}>{visibility} km</Text>
-                                    </View>
-                                    <View style={styles.infoBox}>
-                                        <Text style={styles.infoBoxTitle}>Ressenti</Text>
-                                        <Text style={styles.infoBoxValue}>{feelsLike}°</Text>
-                                    </View>
+                                <View style={styles.infoBox}>
+                                    <Text style={styles.infoBoxTitle}>Humidité</Text>
+                                    <Text style={styles.infoBoxValue}>{this.state.dayInformation.main.humidity} %</Text>
                                 </View>
+                            </View>
 
-                                <View style={styles.infoRow}>
-                                    <View style={styles.infoBox}>
-                                        <Text style={styles.infoBoxTitle}>Pression</Text>
-                                        <Text style={styles.infoBoxValue}>{this.state.dayInformation.main.pressure} hPa</Text>
-                                    </View>
-                                    <View style={styles.infoBox}>
-                                        <Text style={styles.infoBoxTitle}>Humidité</Text>
-                                        <Text style={styles.infoBoxValue}>{this.state.dayInformation.main.humidity} %</Text>
-                                    </View>
+                            <View style={styles.infoRow}>
+                                <View style={styles.infoBox}>
+                                    <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-windy" size={16} color="#FFF" /> Vitesse vent</Text>
+                                    <Text style={styles.infoBoxValue}>{windSpeed} km/h</Text>
                                 </View>
-
-                                <View style={styles.infoRow}>
-                                    <View style={styles.infoBox}>
-                                        <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-windy" size={16} color="#FFF" /> Vitesse vent</Text>
-                                        <Text style={styles.infoBoxValue}>{windSpeed} km/h</Text>
-                                    </View>
-                                    <View style={styles.infoBox}>
-                                        <Text style={styles.infoBoxTitle}>Degré vent</Text>
-                                        <Text style={styles.infoBoxValue}>{this.state.dayInformation.wind.deg} deg</Text>
-                                    </View>
+                                <View style={styles.infoBox}>
+                                    <Text style={styles.infoBoxTitle}>Degré vent</Text>
+                                    <Text style={styles.infoBoxValue}>{this.state.dayInformation.wind.deg} deg</Text>
                                 </View>
+                            </View>
 
-                                <View style={styles.infoRow}>
-                                    <View style={styles.infoBox}>
-                                        <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-sunset-up" size={16} color="#FFF" /> Levé de soleil</Text>
-                                        <Text style={styles.infoBoxValue}>{sunriseTime}</Text>
-                                    </View>
-                                    <View style={styles.infoBox}>
-                                        <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-sunset-down" size={16} color="#FFF" /> Couché de soleil</Text>
-                                        <Text style={styles.infoBoxValue}>{sunsetTime}</Text>
-                                    </View>
+                            <View style={styles.infoRow}>
+                                <View style={styles.infoBox}>
+                                    <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-sunset-up" size={16} color="#FFF" /> Levé de soleil</Text>
+                                    <Text style={styles.infoBoxValue}>{sunriseTime}</Text>
                                 </View>
-
+                                <View style={styles.infoBox}>
+                                    <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-sunset-down" size={16} color="#FFF" /> Couché de soleil</Text>
+                                    <Text style={styles.infoBoxValue}>{sunsetTime}</Text>
+                                </View>
                             </View>
 
                         </View>
-                    }
+
+                    </View>
+                }
             </View>
         )
     }

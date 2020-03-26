@@ -1,10 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
 
 import FiveDaysElement from './FiveDaysElement';
-
-var width = Dimensions.get('window').width; //full width
-var height = Dimensions.get('window').height; //full height
 
 export default class FiveDaysWidget extends React.Component {
 
@@ -92,7 +90,7 @@ export default class FiveDaysWidget extends React.Component {
 
     getFiveDaysWeather(geolocation) {
 
-        return fetch('http://api.openweathermap.org/data/2.5/forecast?q=' + geolocation + '&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr')
+        return fetch(`http://api.openweathermap.org/data/2.5/forecast?zip=${geolocation}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
             .then((response) => response.json())
             .then((responseJson) => {
                 let test = this.getAverageWeather(responseJson.list);
@@ -122,7 +120,23 @@ export default class FiveDaysWidget extends React.Component {
     }
 
     componentDidMount() {
-        this.getFiveDaysWeather("Les Angles");
+        Geolocation.getCurrentPosition((info) => {
+
+            let latitude = info.coords.latitude;
+            let longitude = info.coords.longitude;
+
+            return fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
+                .then((response) => response.json())
+                .then((responseJson) => {
+                    let test = this.getAverageWeather(responseJson.list);
+
+                    this.setState({ fiveDaysInformation: responseJson, fiveDaysAverageWeather: test })
+
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        });
     }
 
 }

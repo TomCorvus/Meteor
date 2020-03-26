@@ -9,7 +9,6 @@ import BackgroundApp from './BackgroundApp';
 
 var width = Dimensions.get('window').width; //full width
 var height = Dimensions.get('window').height; //full height
-
 export default class MeteorWrapper extends React.Component {
 
     constructor(props) {

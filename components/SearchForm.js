@@ -20,7 +20,7 @@ export default class SearchForm extends React.Component {
             searchInProgress: true
         })
 
-        this.getFiveDaysWeather(event.nativeEvent.text);
+        // this.getFiveDaysWeather(event.nativeEvent.text);
     }
 
     render() {
