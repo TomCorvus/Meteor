@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, Dimensions } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { connect } from "react-redux";
 import Geolocation from '@react-native-community/geolocation';
 
 import FiveDaysElement from './FiveDaysElement';
 
-export default class FiveDaysWidget extends React.Component {
+class FiveDaysWidget extends React.Component {
 
     constructor(props) {
         super(props);
@@ -90,7 +91,7 @@ export default class FiveDaysWidget extends React.Component {
 
     getFiveDaysWeather(geolocation) {
 
-        return fetch(`http://api.openweathermap.org/data/2.5/forecast?zip=${geolocation}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
+        return fetch(`http://api.openweathermap.org/data/2.5/forecast?q=${geolocation}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
             .then((response) => response.json())
             .then((responseJson) => {
                 let test = this.getAverageWeather(responseJson.list);
@@ -119,6 +120,10 @@ export default class FiveDaysWidget extends React.Component {
         )
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.geolocation !== this.props.geolocation) this.getFiveDaysWeather(this.props.geolocation);
+    }
+
     componentDidMount() {
         Geolocation.getCurrentPosition((info) => {
 
@@ -141,6 +146,16 @@ export default class FiveDaysWidget extends React.Component {
 
 }
 
+function mapStateToProps(state) {
+    return {
+        geolocation: state.geolocation
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {}
+}
+
 const styles = StyleSheet.create({
     container: {
         justifyContent: "space-around",
@@ -148,3 +163,5 @@ const styles = StyleSheet.create({
         paddingBottom: 10
     }
 });
+
+export default connect(mapStateToProps, null)(FiveDaysWidget);

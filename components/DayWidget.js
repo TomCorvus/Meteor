@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
+import { connect } from "react-redux";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Geolocation from '@react-native-community/geolocation';
 
-export default class DayWidget extends React.Component {
+class DayWidget extends React.Component {
 
     constructor(props) {
         super(props);
@@ -59,6 +60,10 @@ export default class DayWidget extends React.Component {
             formatTime = `${ho}:${mi}`;
 
         return formatTime;
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.geolocation !== this.props.geolocation) this.getTodayWeather(this.props.geolocation);
     }
 
     componentDidMount() {
@@ -177,6 +182,16 @@ export default class DayWidget extends React.Component {
 
 }
 
+function mapStateToProps(state) {
+    return {
+        geolocation: state.geolocation
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {}
+}
+
 const styles = StyleSheet.create({
     container: {
         // backgroundColor: "#7B8FE8",
@@ -275,3 +290,5 @@ const styles = StyleSheet.create({
         textShadowRadius: 3
     }
 });
+
+export default connect(mapStateToProps, null)(DayWidget);

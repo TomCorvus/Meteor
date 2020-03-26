@@ -1,8 +1,10 @@
 import React from 'react';
 import { StyleSheet, View, TextInput } from 'react-native';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import { getLocation } from "../actions/MeteorActions";
+import { connect } from "react-redux";
 
-export default class SearchForm extends React.Component {
+class SearchForm extends React.Component {
 
     constructor(props) {
         super(props);
@@ -18,9 +20,9 @@ export default class SearchForm extends React.Component {
     onSubmitEdit = (event) => {
         this.setState({
             searchInProgress: true
-        })
+        });
 
-        // this.getFiveDaysWeather(event.nativeEvent.text);
+        this.props.getLocation(event.nativeEvent.text);
     }
 
     render() {
@@ -32,6 +34,23 @@ export default class SearchForm extends React.Component {
     }
 
 }
+
+function mapStateToProps(state) {
+    return {
+        geolocation: state.geolocation
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        getLocation: function (geolocation) {
+            var action = getLocation(geolocation);
+            dispatch(action);
+        }
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SearchForm);
 
 const styles = StyleSheet.create({
     container: {

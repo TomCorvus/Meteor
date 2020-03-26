@@ -1,10 +1,15 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Provider } from "react-redux";
+import { createStore } from "redux";
+import { composeWithDevTools } from 'redux-devtools-extension';
 
 import Home from './pages/PageHome';
+import MeteorReducer from "./reducers/MeteorReducers";
+
+const store = createStore(MeteorReducer, composeWithDevTools());
 
 export default function App() {
   return (
-    <Home />
+    <Provider store={store}><Home /></Provider>
   );
 }
