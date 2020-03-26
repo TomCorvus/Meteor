@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default class DayWidget extends React.Component {
@@ -27,6 +27,13 @@ export default class DayWidget extends React.Component {
         windSpeed = windSpeed * 3600;
         windSpeed = windSpeed / 1000;
         return windSpeed;
+
+    }
+
+    getVisibilityInKilometer(visibility) {
+
+        visibility = visibility / 1000;
+        return visibility;
 
     }
 
@@ -68,35 +75,85 @@ export default class DayWidget extends React.Component {
 
             var windSpeed = Math.round(this.getKilometerPerHour(this.state.dayInformation.wind.speed));
 
-            this.getIcon();
+            var visibility = Math.round(this.getVisibilityInKilometer(this.state.dayInformation.visibility));
         }
 
         return (
-            <View style={styles.container} >
-                {this.state.dayInformation !== undefined &&
-                    <View style={styles.widget} >
+            <View style={styles.container}>
+                  {this.state.dayInformation !== undefined &&
+                        <View style={styles.widget}>
 
-                        <Text style={styles.city}>{this.state.dayInformation.name}</Text>
+                            <View style={styles.header}>
+                                <Text style={styles.city}>{this.state.dayInformation.name}</Text>
+                                <Text style={styles.description}>{this.state.dayInformation.weather[0].description}</Text>
+                            </View>
 
-                        <View style={styles.iconWrapper}>
-                            <Image style={styles.icon} source={{ uri: "http://openweathermap.org/img/wn/" + this.state.dayInformation.weather[0].icon + "@2x.png" }} />
+                            <View style={styles.iconWrapper}>
+                                <Text style={styles.temperature}>{Math.round(this.state.dayInformation.main.temp)}°</Text>
+                                <Image style={styles.icon} source={{ uri: "http://openweathermap.org/img/wn/" + this.state.dayInformation.weather[0].icon + "@2x.png" }} />
+                            </View>
+
+                            <View style={styles.infoWrapper}>
+
+                                <View style={styles.infoRow}>
+                                    <View style={styles.infoBox}>
+                                        <Text style={styles.infoBoxTitle}>Minimum</Text>
+                                        <Text style={styles.infoBoxValue}>{minTemp}°</Text>
+                                    </View>
+                                    <View style={styles.infoBox}>
+                                        <Text style={styles.infoBoxTitle}>Maximum</Text>
+                                        <Text style={styles.infoBoxValue}>{maxTemp}°</Text>
+                                    </View>
+                                </View>
+
+                                <View style={styles.infoRow}>
+                                    <View style={styles.infoBox}>
+                                        <Text style={styles.infoBoxTitle}>Visibilité</Text>
+                                        <Text style={styles.infoBoxValue}>{visibility} km</Text>
+                                    </View>
+                                    <View style={styles.infoBox}>
+                                        <Text style={styles.infoBoxTitle}>Ressenti</Text>
+                                        <Text style={styles.infoBoxValue}>{feelsLike}°</Text>
+                                    </View>
+                                </View>
+
+                                <View style={styles.infoRow}>
+                                    <View style={styles.infoBox}>
+                                        <Text style={styles.infoBoxTitle}>Pression</Text>
+                                        <Text style={styles.infoBoxValue}>{this.state.dayInformation.main.pressure} hPa</Text>
+                                    </View>
+                                    <View style={styles.infoBox}>
+                                        <Text style={styles.infoBoxTitle}>Humidité</Text>
+                                        <Text style={styles.infoBoxValue}>{this.state.dayInformation.main.humidity} %</Text>
+                                    </View>
+                                </View>
+
+                                <View style={styles.infoRow}>
+                                    <View style={styles.infoBox}>
+                                        <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-windy" size={16} color="#FFF" /> Vitesse vent</Text>
+                                        <Text style={styles.infoBoxValue}>{windSpeed} km/h</Text>
+                                    </View>
+                                    <View style={styles.infoBox}>
+                                        <Text style={styles.infoBoxTitle}>Degré vent</Text>
+                                        <Text style={styles.infoBoxValue}>{this.state.dayInformation.wind.deg} deg</Text>
+                                    </View>
+                                </View>
+
+                                <View style={styles.infoRow}>
+                                    <View style={styles.infoBox}>
+                                        <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-sunset-up" size={16} color="#FFF" /> Levé de soleil</Text>
+                                        <Text style={styles.infoBoxValue}>{sunriseTime}</Text>
+                                    </View>
+                                    <View style={styles.infoBox}>
+                                        <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-sunset-down" size={16} color="#FFF" /> Couché de soleil</Text>
+                                        <Text style={styles.infoBoxValue}>{sunsetTime}</Text>
+                                    </View>
+                                </View>
+
+                            </View>
+
                         </View>
-
-                        <Text style={styles.description}>{this.state.dayInformation.weather[0].description}</Text>
-
-                        <Text>Température: {Math.round(this.state.dayInformation.main.temp)}°</Text>
-                        <Text>Ressenti: {feelsLike}°</Text>
-                        <Text>Minimum: {minTemp}°</Text>
-                        <Text>Maximum: {maxTemp}°</Text>
-                        <Text>Pression: {this.state.dayInformation.main.pressure} hPa</Text>
-                        <Text>Humidité: {this.state.dayInformation.main.humidity} %</Text>
-                        <Text><MaterialCommunityIcons name="weather-windy" size={16} color="black" /> Vitesse vent: {windSpeed} km/h</Text>
-                        <Text>Degré vent: {this.state.dayInformation.wind.deg} deg</Text>
-                        <Text><MaterialCommunityIcons name="weather-sunset-up" size={16} color="black" /> Levé de soleil: {sunriseTime}</Text>
-                        <Text><MaterialCommunityIcons name="weather-sunset-down" size={16} color="black" /> Couché de soleil: {sunsetTime}</Text>
-
-                    </View>
-                }
+                    }
             </View>
         )
     }
@@ -105,29 +162,99 @@ export default class DayWidget extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 5,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: "red"
+        // backgroundColor: "#7B8FE8",
     },
     widget: {
-        flex: 1,
-        justifyContent: 'center',
+        // backgroundColor: "#87BDFF"
+    },
+    header: {
+        // backgroundColor: "red",
+        justifyContent: "flex-start",
+        paddingTop: 10,
+        paddingBottom: 10
     },
     city: {
-        fontSize: 20,
-        textAlign: "center"
+        fontSize: 40,
+        textAlign: 'center',
+        color: '#FFF',
+        textShadowColor: "#404040",
+        textShadowOffset: {
+            width: .1,
+            height: .1
+        },
+        textShadowRadius: 3
+    },
+    description: {
+        textAlign: 'center',
+        fontSize: 14,
+        textTransform: "capitalize",
+        color: "#FFF",
+        textShadowColor: "#404040",
+        textShadowOffset: {
+            width: .1,
+            height: .1
+        },
+        textShadowRadius: 3
     },
     iconWrapper: {
+        flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        // backgroundColor: '#A27BE8'
     },
     icon: {
         width: 50,
         height: 50
     },
-    description: {
+    temperature: {
         textAlign: "center",
-        fontSize: 14
+        fontSize: 70,
+        color: "#FFF",
+        textShadowColor: "#404040",
+        textShadowOffset: {
+            width: .1,
+            height: .1
+        },
+        textShadowRadius: 3
+    },
+    infoWrapper: {
+        flex: 2,
+        justifyContent: 'center'
+        // backgroundColor: "red",
+    },
+    infoRow: {
+        flexDirection: "row",
+        // backgroundColor: "blue",
+        borderBottomWidth: 1,
+        borderBottomColor: "#FFF"
+    },
+    infoBox: {
+        flex: 1,
+        paddingTop: 10,
+        paddingLeft: 20,
+        paddingRight: 20,
+        paddingBottom: 10
+    },
+    infoBoxTitle: {
+        color: "#FFF",
+        textTransform: 'uppercase',
+        fontSize: 12,
+        textShadowColor: "#404040",
+        textShadowOffset: {
+            width: .1,
+            height: .1
+        },
+        textShadowRadius: 3
+    },
+    infoBoxValue: {
+        color: "#FFF",
+        fontWeight: "700",
+        fontSize: 16,
+        textShadowColor: "#404040",
+        textShadowOffset: {
+            width: .1,
+            height: .1
+        },
+        textShadowRadius: 3
     }
 });

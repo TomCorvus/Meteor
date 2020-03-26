@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Dimensions } from 'react-native';
+import { StyleSheet, View, Dimensions, ScrollView } from 'react-native';
 
 import DayWidget from './DayWidget';
 import FiveDaysWidget from './FiveDaysWidget';
@@ -18,12 +18,14 @@ export default class MeteorWrapper extends React.Component {
 
     render() {
         return (
-            <View style={styles.container}>
-                <BackgroundApp />
-                <SearchForm />
-                <DayWidget />
-                <FiveDaysWidget />
-            </View>
+            <ScrollView>
+                <View style={styles.container}>
+                    <BackgroundApp />
+                    <SearchForm />
+                    <DayWidget />
+                    <FiveDaysWidget />
+                </View>
+            </ScrollView>
         )
     }
 
@@ -31,9 +33,6 @@ export default class MeteorWrapper extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        height: height,
-        width: width,
-        backgroundColor: "black"
+        flex: 1
     }
 });

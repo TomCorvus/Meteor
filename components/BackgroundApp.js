@@ -6,17 +6,18 @@ import {
     Text,
 } from 'react-native';
 
-const remote = 'https://angularscript.com/wp-content/uploads/2018/06/Progressively-Loading-Images-With-Blur-Effect-min.png';
+const remote = require('../assets/backgroundApp.jpg');
 
 export default class BackgroundImage extends Component {
     render() {
-        const resizeMode = 'cover';
+
+        const resizeMode = 'stretch';
 
         return (
             <View
                 style={{
                     position: 'absolute',
-                    top: 0,
+                    bottom: 0,
                     left: 0,
                     width: '100%',
                     height: '100%',
@@ -28,7 +29,7 @@ export default class BackgroundImage extends Component {
                         flex: 1,
                         resizeMode
                     }}
-                    source={{ uri: remote }}
+                    source={remote}
                 />
             </View>
 

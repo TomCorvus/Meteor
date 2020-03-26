@@ -129,10 +129,8 @@ export default class FiveDaysWidget extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 2,
         justifyContent: "space-around",
-        flexDirection: "row",
-        width: width,
-        backgroundColor: "red"
+        paddingTop: 10,
+        paddingBottom: 10
     }
 });

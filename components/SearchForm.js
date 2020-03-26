@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, TextInput } from 'react-native';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 export default class SearchForm extends React.Component {
 
@@ -34,9 +35,12 @@ export default class SearchForm extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingTop: getStatusBarHeight() + 20,
+        paddingBottom: 20,
+        paddingLeft: 20,
+        paddingRight: 20
     },
     SearchFormInput: {
         backgroundColor: "white",
