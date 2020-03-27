@@ -1,23 +1,31 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Animated } from 'react-native';
 import { connect } from "react-redux";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-import Geolocation from '@react-native-community/geolocation';
+import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions';
+import { getSkyType } from "../actions/MeteorActions";
 
 class DayWidget extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { dayInformation: undefined }
+        this.state = {
+            dayInformation: undefined,
+            location: Object,
+            opacity: new Animated.Value(0)
+        }
     }
 
-    getTodayWeather(geolocation) {
+    getDataByGeoLocation(geoLocation) {
 
-        return fetch('http://api.openweathermap.org/data/2.5/weather?q=' + geolocation + '&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr')
+        return fetch('http://api.openweathermap.org/data/2.5/weather?q=' + geoLocation + '&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr')
             .then((response) => response.json())
-            .then((responseJson) => {
-                this.setState({ dayInformation: responseJson })
+            .then((JSON) => {
+                let skyType = JSON.weather[0].main.toLowerCase();
+
+                this.setState({ dayInformation: JSON });
+                this.props.getSkyType(skyType);
             })
             .catch((error) => {
                 console.error(error);
@@ -25,7 +33,57 @@ class DayWidget extends React.Component {
 
     }
 
-    getKilometerPerHour(windSpeed) {
+    getDataByGeoCoordinates(geoCoordinates) {
+
+        let latitude = geoCoordinates.latitude;
+        let longitude = geoCoordinates.longitude;
+
+        return fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
+            .then((response) => response.json())
+            .then((JSON) => {
+
+                let skyType = JSON.weather[0].main.toLowerCase();
+
+                this.setState({ dayInformation: JSON });
+                this.props.getSkyType(skyType);
+
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+
+    }
+
+    getWindOrientation(windDegree) {
+
+        let windOrientation;
+
+        if (windDegree >= 0 && windDegree < 22.5) {
+            windOrientation = 'N';
+        } else if (windDegree >= 22.5 && windDegree < 67.5) {
+            windOrientation = 'NE';
+        } else if (windDegree >= 67.5 && windDegree < 112.5) {
+            windOrientation = 'E';
+        } else if (windDegree >= 112.5 && windDegree < 157.5) {
+            windOrientation = 'SE';
+        } else if (windDegree >= 157.5 && windDegree < 202.5) {
+            windOrientation = 'S';
+        } else if (windDegree >= 202.5 && windDegree < 247.5) {
+            windOrientation = 'SO';
+        } else if (windDegree >= 247.5 && windDegree < 292.5) {
+            windOrientation = 'O';
+        } else if (windDegree >= 292.5 && windDegree < 337.5) {
+            windOrientation = 'NO';
+        } else if (windDegree >= 337.5 && windDegree <= 360) {
+            windOrientation = 'N';
+        }
+
+        return windOrientation;
+
+
+    }
+
+    getWindSpeedInKilometerPerHour(windSpeed) {
 
         windSpeed = windSpeed * 3600;
         windSpeed = windSpeed / 1000;
@@ -40,20 +98,23 @@ class DayWidget extends React.Component {
 
     }
 
-    getIcon() {
-        const type = this.state.dayInformation.weather[0].main;
-        console.log(type);
+    getLocationAsync = async () => {
 
-        let image;
-        // switch(type) {
-        //     case ''
-        //     image = ""
-        //      break;
-        // }
+        let { status } = await Permissions.askAsync(Permissions.LOCATION);
 
-    }
+        if (status !== 'granted') {
+            this.setState({
+                errorMessage: 'Permission to access location was denied',
+            });
+        }
 
-    getTimeWithUTC(timestamp) {
+        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation });
+
+        this.getDataByGeoCoordinates(location.coords);
+
+    };
+
+    getFormatTimeFromUTC(timestamp) {
         let date = new Date(timestamp * 1000),
             ho = (date.getHours() < 10 ? '0' : '') + date.getHours(),
             mi = (date.getMinutes() < 10 ? '0' : '') + date.getMinutes(),
@@ -62,48 +123,50 @@ class DayWidget extends React.Component {
         return formatTime;
     }
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.geolocation !== this.props.geolocation) this.getTodayWeather(this.props.geolocation);
+    componentDidMount() {
+        this.getLocationAsync();
     }
 
-    async componentDidMount() {
+    componentDidUpdate(prevProps) {
+        if (prevProps.geoLocation !== this.props.geoLocation) {
 
-        await Geolocation.getCurrentPosition((info) => {
+            Animated.timing(this.state.opacity, {
+                toValue: 0,
+                duration: 0
+            }).start();
 
-            let latitude = info.coords.latitude;
-            let longitude = info.coords.longitude;
-
-            fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
-                .then((response) => response.json())
-                .then((responseJson) => {
-                    this.setState({ dayInformation: responseJson })
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
-        });
-
+            this.getDataByGeoLocation(this.props.geoLocation);
+        }
     }
 
     render() {
 
         if (this.state.dayInformation !== undefined) {
+
             var minTemp = Math.round(this.state.dayInformation.main.temp_min);
             var maxTemp = Math.round(this.state.dayInformation.main.temp_max);
             var feelsLike = Math.round(this.state.dayInformation.main.feels_like);
 
-            var sunriseTime = this.getTimeWithUTC(this.state.dayInformation.sys.sunrise);
-            var sunsetTime = this.getTimeWithUTC(this.state.dayInformation.sys.sunset);
+            var sunriseTime = this.getFormatTimeFromUTC(this.state.dayInformation.sys.sunrise);
+            var sunsetTime = this.getFormatTimeFromUTC(this.state.dayInformation.sys.sunset);
 
-            var windSpeed = Math.round(this.getKilometerPerHour(this.state.dayInformation.wind.speed));
+            var windSpeed = Math.round(this.getWindSpeedInKilometerPerHour(this.state.dayInformation.wind.speed));
+            var windOrientation = this.getWindOrientation(this.state.dayInformation.wind.deg);
 
             var visibility = Math.round(this.getVisibilityInKilometer(this.state.dayInformation.visibility));
+
+            Animated.timing(this.state.opacity, {
+                toValue: 1,
+                duration: 500,
+                delay: 600
+            }).start();
+
         }
 
         return (
             <View style={styles.container}>
                 {this.state.dayInformation !== undefined &&
-                    <View style={styles.widget}>
+                    <Animated.View style={{ ...styles.widget, opacity: this.state.opacity }}>
 
                         <View style={styles.header}>
                             <Text style={styles.city}>{this.state.dayInformation.name}</Text>
@@ -131,7 +194,7 @@ class DayWidget extends React.Component {
                             <View style={styles.infoRow}>
                                 <View style={styles.infoBox}>
                                     <Text style={styles.infoBoxTitle}>Visibilité</Text>
-                                    <Text style={styles.infoBoxValue}>{visibility} km</Text>
+                                    <Text style={styles.infoBoxValue}>{visibility}km</Text>
                                 </View>
                                 <View style={styles.infoBox}>
                                     <Text style={styles.infoBoxTitle}>Ressenti</Text>
@@ -142,22 +205,22 @@ class DayWidget extends React.Component {
                             <View style={styles.infoRow}>
                                 <View style={styles.infoBox}>
                                     <Text style={styles.infoBoxTitle}>Pression</Text>
-                                    <Text style={styles.infoBoxValue}>{this.state.dayInformation.main.pressure} hPa</Text>
+                                    <Text style={styles.infoBoxValue}>{this.state.dayInformation.main.pressure}hPa</Text>
                                 </View>
                                 <View style={styles.infoBox}>
                                     <Text style={styles.infoBoxTitle}>Humidité</Text>
-                                    <Text style={styles.infoBoxValue}>{this.state.dayInformation.main.humidity} %</Text>
+                                    <Text style={styles.infoBoxValue}>{this.state.dayInformation.main.humidity}%</Text>
                                 </View>
                             </View>
 
                             <View style={styles.infoRow}>
                                 <View style={styles.infoBox}>
                                     <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-windy" size={16} color="#FFF" /> Vitesse vent</Text>
-                                    <Text style={styles.infoBoxValue}>{windSpeed} km/h</Text>
+                                    <Text style={styles.infoBoxValue}>{windSpeed}km/h</Text>
                                 </View>
                                 <View style={styles.infoBox}>
                                     <Text style={styles.infoBoxTitle}>Degré vent</Text>
-                                    <Text style={styles.infoBoxValue}>{this.state.dayInformation.wind.deg} deg</Text>
+                                    <Text style={styles.infoBoxValue}>{windOrientation} {this.state.dayInformation.wind.deg}deg</Text>
                                 </View>
                             </View>
 
@@ -174,7 +237,7 @@ class DayWidget extends React.Component {
 
                         </View>
 
-                    </View>
+                    </Animated.View>
                 }
             </View>
         )
@@ -184,25 +247,23 @@ class DayWidget extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        geolocation: state.geolocation
+        geoLocation: state.geoLocation
     }
 }
 
 function mapDispatchToProps(dispatch) {
-    return {}
+    return {
+        getSkyType: function (skyType) {
+            let action = getSkyType(skyType);
+            dispatch(action);
+        }
+    }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        // flex: 1
-        // backgroundColor: "#7B8FE8",
-    },
-    widget: {
-        // opacity: 0
-        // backgroundColor: "#87BDFF"
-    },
+    container: {},
+    widget: {},
     header: {
-        // backgroundColor: "red",
         justifyContent: "flex-start",
         paddingTop: 10,
         paddingBottom: 10
@@ -233,8 +294,7 @@ const styles = StyleSheet.create({
     iconWrapper: {
         flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'center',
-        // backgroundColor: '#A27BE8'
+        alignItems: 'center'
     },
     icon: {
         width: 50,
@@ -254,11 +314,9 @@ const styles = StyleSheet.create({
     infoWrapper: {
         flex: 2,
         justifyContent: 'center'
-        // backgroundColor: "red",
     },
     infoRow: {
         flexDirection: "row",
-        // backgroundColor: "blue",
         borderBottomWidth: 1,
         borderBottomColor: "#FFF"
     },
@@ -293,4 +351,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default connect(mapStateToProps, null)(DayWidget);
+export default connect(mapStateToProps, mapDispatchToProps)(DayWidget);

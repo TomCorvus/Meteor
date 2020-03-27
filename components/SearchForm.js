@@ -1,28 +1,26 @@
 import React from 'react';
 import { StyleSheet, View, TextInput } from 'react-native';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
-import { getLocation } from "../actions/MeteorActions";
+import { getGeoLocation } from "../actions/MeteorActions";
 import { connect } from "react-redux";
 
 class SearchForm extends React.Component {
 
     constructor(props) {
         super(props);
-        this.onSubmitEdit.bind(this);
-
         this.state = {
-            searchInProgress: false,
-            dayInformation: undefined,
-            fiveDaysInformation: undefined
+            searchInProgress: false
         }
+        this.onSubmitEdit.bind(this);
     }
 
     onSubmitEdit = (event) => {
+
         this.setState({
             searchInProgress: true
         });
 
-        this.props.getLocation(event.nativeEvent.text);
+        this.props.getGeoLocation(event.nativeEvent.text);
     }
 
     render() {
@@ -37,14 +35,14 @@ class SearchForm extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        geolocation: state.geolocation
+        geoLocation: state.geoLocation
     }
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        getLocation: function (geolocation) {
-            var action = getLocation(geolocation);
+        getGeoLocation: function (geoLocation) {
+            var action = getGeoLocation(geoLocation);
             dispatch(action);
         }
     }
@@ -54,7 +52,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(SearchForm);
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingTop: getStatusBarHeight() + 20,
@@ -65,7 +62,7 @@ const styles = StyleSheet.create({
     SearchFormInput: {
         backgroundColor: "white",
         height: 40,
-        width: "80%",
+        width: "90%",
         padding: 5
     }
 });

@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Animated } from 'react-native';
 import { connect } from "react-redux";
-import Geolocation from '@react-native-community/geolocation';
+import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions';
 
 import FiveDaysElement from './FiveDaysElement';
 
@@ -11,7 +12,8 @@ class FiveDaysWidget extends React.Component {
         super(props);
         this.state = {
             fiveDaysInformation: undefined,
-            fiveDaysAverageWeather: undefined
+            fiveDaysAverageWeather: undefined,
+            opacity: new Animated.Value(0)
         }
     }
 
@@ -105,52 +107,84 @@ class FiveDaysWidget extends React.Component {
 
     }
 
+    getFiveDaysWeatherByCoordinate(location) {
+
+        let latitude = location.latitude;
+        let longitude = location.longitude;
+
+        fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
+            .then((response) => response.json())
+            .then((JSON) => {
+
+                let daysList = this.getAverageWeather(JSON.list);
+                this.setState({ fiveDaysInformation: JSON, fiveDaysAverageWeather: daysList })
+
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+
+
+    }
+
     render() {
+
+        Animated.timing(this.state.opacity, {
+            toValue: 1,
+            duration: 500,
+            delay: 600
+        }).start();
 
         return (
             <View style={styles.container}>
                 {this.state.fiveDaysInformation !== undefined &&
                     this.state.fiveDaysAverageWeather !== undefined &&
-                    <View style={styles.widget}>
+                    <Animated.View style={{ ...styles.widget, opacity: this.state.opacity }} >
                         {this.state.fiveDaysAverageWeather.map((number) =>
                             <FiveDaysElement key={number.id} date={number.date} icon={number.icon} averageTemp={number.averageTemp} weather={number.weather} weekDay={number.weekDay} />
                         )}
-                    </View>
+                    </Animated.View>
                 }
             </View>
 
         )
     }
 
+    getLocationAsync = async () => {
+
+        let { status } = await Permissions.askAsync(Permissions.LOCATION);
+
+        if (status !== 'granted') {
+            this.setState({
+                errorMessage: 'Permission to access location was denied',
+            });
+        }
+
+        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation });
+
+        this.getFiveDaysWeatherByCoordinate(location.coords);
+
+    };
+
     componentDidUpdate(prevProps) {
-        if (prevProps.geolocation !== this.props.geolocation) this.getFiveDaysWeather(this.props.geolocation);
+        if (prevProps.geoLocation !== this.props.geoLocation) {
+            Animated.timing(this.state.opacity, {
+                toValue: 0,
+                duration: 0
+            }).start();
+            this.getFiveDaysWeather(this.props.geoLocation);
+        }
     }
 
     async componentDidMount() {
-        await Geolocation.getCurrentPosition((info) => {
-
-            let latitude = info.coords.latitude;
-            let longitude = info.coords.longitude;
-
-            fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
-                .then((response) => response.json())
-                .then((responseJson) => {
-                    let test = this.getAverageWeather(responseJson.list);
-
-                    this.setState({ fiveDaysInformation: responseJson, fiveDaysAverageWeather: test })
-
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
-        });
+        this.getLocationAsync()
     }
 
 }
 
 function mapStateToProps(state) {
     return {
-        geolocation: state.geolocation
+        geoLocation: state.geoLocation
     }
 }
 
@@ -163,7 +197,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-around",
         paddingTop: 10,
         paddingBottom: 10,
-        // flex: 1
+        flex: 1
     },
     widget: {
         // opacity: 0
