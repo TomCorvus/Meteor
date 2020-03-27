@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
-import { getSkyType } from "../actions/MeteorActions";
+import { getSkyType, getApiResponse } from "../actions/MeteorActions";
 
 class DayWidget extends React.Component {
 
@@ -22,10 +22,14 @@ class DayWidget extends React.Component {
         return fetch('http://api.openweathermap.org/data/2.5/weather?q=' + geoLocation + '&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr')
             .then((response) => response.json())
             .then((JSON) => {
-                let skyType = JSON.weather[0].main.toLowerCase();
+                if (JSON.cod === 200) {
+                    let skyType = JSON.weather[0].main.toLowerCase();
 
-                this.setState({ dayInformation: JSON });
-                this.props.getSkyType(skyType);
+                    this.setState({ dayInformation: JSON });
+                    this.props.getSkyType(skyType);
+
+                }
+                this.props.getApiResponse(JSON.cod);
             })
             .catch((error) => {
                 console.error(error);
@@ -41,12 +45,14 @@ class DayWidget extends React.Component {
         return fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
             .then((response) => response.json())
             .then((JSON) => {
+                if (JSON.cod === 200) {
+                    let skyType = JSON.weather[0].main.toLowerCase();
 
-                let skyType = JSON.weather[0].main.toLowerCase();
+                    this.setState({ dayInformation: JSON });
+                    this.props.getSkyType(skyType);
 
-                this.setState({ dayInformation: JSON });
-                this.props.getSkyType(skyType);
-
+                }
+                this.props.getApiResponse(JSON.cod);
             })
             .catch((error) => {
                 console.error(error);
@@ -103,6 +109,7 @@ class DayWidget extends React.Component {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
 
         if (status !== 'granted') {
+
             this.setState({
                 errorMessage: 'Permission to access location was denied',
             });
@@ -132,7 +139,8 @@ class DayWidget extends React.Component {
 
             Animated.timing(this.state.opacity, {
                 toValue: 0,
-                duration: 0
+                duration: 0,
+                useNativeDriver: true
             }).start();
 
             this.getDataByGeoLocation(this.props.geoLocation);
@@ -158,7 +166,8 @@ class DayWidget extends React.Component {
             Animated.timing(this.state.opacity, {
                 toValue: 1,
                 duration: 500,
-                delay: 600
+                delay: 600,
+                useNativeDriver: true
             }).start();
 
         }
@@ -215,22 +224,22 @@ class DayWidget extends React.Component {
 
                             <View style={styles.infoRow}>
                                 <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-windy" size={16} color="#FFF" /> Vitesse vent</Text>
+                                    <Text style={styles.infoBoxTitle}>Vent</Text>
                                     <Text style={styles.infoBoxValue}>{windSpeed}km/h</Text>
                                 </View>
                                 <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}>Degré vent</Text>
+                                    <Text style={styles.infoBoxTitle}>Orientation</Text>
                                     <Text style={styles.infoBoxValue}>{windOrientation} {this.state.dayInformation.wind.deg}deg</Text>
                                 </View>
                             </View>
 
                             <View style={styles.infoRow}>
                                 <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-sunset-up" size={16} color="#FFF" /> Levé de soleil</Text>
+                                    <Text style={styles.infoBoxTitle}>Lever</Text>
                                     <Text style={styles.infoBoxValue}>{sunriseTime}</Text>
                                 </View>
                                 <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}><MaterialCommunityIcons name="weather-sunset-down" size={16} color="#FFF" /> Couché de soleil</Text>
+                                    <Text style={styles.infoBoxTitle}>Coucher</Text>
                                     <Text style={styles.infoBoxValue}>{sunsetTime}</Text>
                                 </View>
                             </View>
@@ -256,6 +265,10 @@ function mapDispatchToProps(dispatch) {
         getSkyType: function (skyType) {
             let action = getSkyType(skyType);
             dispatch(action);
+        },
+        getApiResponse: function (apiResponse) {
+            var action = getApiResponse(apiResponse);
+            dispatch(action);
         }
     }
 }
@@ -265,11 +278,12 @@ const styles = StyleSheet.create({
     widget: {},
     header: {
         justifyContent: "flex-start",
-        paddingTop: 10,
-        paddingBottom: 10
+        marginBottom: 10
     },
     city: {
-        fontSize: 40,
+        fontSize: 30,
+        lineHeight: 30,
+        marginBottom: 5,
         textAlign: 'center',
         color: '#FFF',
         textShadowColor: "#404040",
@@ -294,7 +308,8 @@ const styles = StyleSheet.create({
     iconWrapper: {
         flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: 10
     },
     icon: {
         width: 50,
@@ -303,6 +318,7 @@ const styles = StyleSheet.create({
     temperature: {
         textAlign: "center",
         fontSize: 70,
+        lineHeight: 70,
         color: "#FFF",
         textShadowColor: "#404040",
         textShadowOffset: {

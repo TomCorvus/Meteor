@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Animated } from 'react-native';
 import { connect } from "react-redux";
+import { getApiResponse } from "../actions/MeteorActions";
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 
@@ -33,7 +34,7 @@ class FiveDaysWidget extends React.Component {
         return average;
     }
 
-    getAverageWeather(list) {
+    getAverageWeather(daysList) {
 
         let fiveDaysAverageWeather = [];
 
@@ -49,7 +50,7 @@ class FiveDaysWidget extends React.Component {
         weekday[5] = "Vendredi";
         weekday[6] = "Samedi";
 
-        list.forEach((element) => {
+        daysList.forEach((element) => {
 
             let timestamp = element.dt,
                 date = new Date(timestamp * 1000),
@@ -95,10 +96,16 @@ class FiveDaysWidget extends React.Component {
 
         return fetch(`http://api.openweathermap.org/data/2.5/forecast?q=${geolocation}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
             .then((response) => response.json())
-            .then((responseJson) => {
-                let test = this.getAverageWeather(responseJson.list);
+            .then((JSON) => {
+                if (JSON.cod === "200") {
+                    let daysList = this.getAverageWeather(JSON.list);
 
-                this.setState({ fiveDaysInformation: responseJson, fiveDaysAverageWeather: test })
+                    this.setState({
+                        fiveDaysInformation: JSON,
+                        fiveDaysAverageWeather: daysList
+                    })
+                }
+                this.props.getApiResponse(JSON.cod);
 
             })
             .catch((error) => {
@@ -116,14 +123,18 @@ class FiveDaysWidget extends React.Component {
             .then((response) => response.json())
             .then((JSON) => {
 
-                let daysList = this.getAverageWeather(JSON.list);
-                this.setState({ fiveDaysInformation: JSON, fiveDaysAverageWeather: daysList })
+                if (JSON.cod === "200") {
+
+                    let daysList = this.getAverageWeather(JSON.list);
+                    this.setState({ fiveDaysInformation: JSON, fiveDaysAverageWeather: daysList })
+
+                }
+                this.props.getApiResponse(JSON.cod);
 
             })
             .catch((error) => {
                 console.error(error);
             });
-
 
     }
 
@@ -132,7 +143,8 @@ class FiveDaysWidget extends React.Component {
         Animated.timing(this.state.opacity, {
             toValue: 1,
             duration: 500,
-            delay: 600
+            delay: 600,
+            useNativeDriver: true
         }).start();
 
         return (
@@ -170,7 +182,8 @@ class FiveDaysWidget extends React.Component {
         if (prevProps.geoLocation !== this.props.geoLocation) {
             Animated.timing(this.state.opacity, {
                 toValue: 0,
-                duration: 0
+                duration: 0,
+                useNativeDriver: true
             }).start();
             this.getFiveDaysWeather(this.props.geoLocation);
         }
@@ -189,7 +202,12 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-    return {}
+    return {
+        getApiResponse: function (apiResponse) {
+            var action = getApiResponse(apiResponse);
+            dispatch(action);
+        }
+    }
 }
 
 const styles = StyleSheet.create({
@@ -205,4 +223,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default connect(mapStateToProps, null)(FiveDaysWidget);
+export default connect(mapStateToProps, mapDispatchToProps)(FiveDaysWidget);

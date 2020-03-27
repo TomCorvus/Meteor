@@ -1,2 +1,3 @@
 export const GET_GEO_LOCATION = "GET_GEO_LOCATION";
 export const GET_SKY_TYPE = "GET_SKY_TYPE";
+export const GET_API_RESPONSE = "GET_API_RESPONSE";
