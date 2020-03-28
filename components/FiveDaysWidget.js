@@ -34,6 +34,19 @@ class FiveDaysWidget extends React.Component {
         return average;
     }
 
+
+    getMinimumTemperature(data) {
+
+        return Math.min.apply(null, data);
+
+    }
+
+    getMaximumTemperature(data) {
+
+        return Math.max.apply(null, data);
+
+    }
+
     getAverageWeather(daysList) {
 
         let fiveDaysAverageWeather = [];
@@ -70,7 +83,9 @@ class FiveDaysWidget extends React.Component {
                     weather: weather,
                     icon: icon,
                     temp: [],
-                    averageTemp: 0
+                    averageTemp: 0,
+                    minTemp: 0,
+                    maxTemp: 0
                 }
             }
 
@@ -79,9 +94,10 @@ class FiveDaysWidget extends React.Component {
             );
 
             fiveDaysAverageWeather[n].averageTemp = Math.round(this.getAverageTemperature(fiveDaysAverageWeather[n].temp));
+            fiveDaysAverageWeather[n].minTemp = Math.round(this.getMinimumTemperature(fiveDaysAverageWeather[n].temp));
+            fiveDaysAverageWeather[n].maxTemp = Math.round(this.getMaximumTemperature(fiveDaysAverageWeather[n].temp));
 
             if (formatDate !== previousDate && previousDate !== null) {
-
                 n++;
             }
 
@@ -152,8 +168,15 @@ class FiveDaysWidget extends React.Component {
                 {this.state.fiveDaysInformation !== undefined &&
                     this.state.fiveDaysAverageWeather !== undefined &&
                     <Animated.View style={{ ...styles.widget, opacity: this.state.opacity }} >
-                        {this.state.fiveDaysAverageWeather.map((number) =>
-                            <FiveDaysElement key={number.id} date={number.date} icon={number.icon} averageTemp={number.averageTemp} weather={number.weather} weekDay={number.weekDay} />
+                        {this.state.fiveDaysAverageWeather.map((DayAverageWeather) =>
+                            <FiveDaysElement key={DayAverageWeather.id}
+                            date={DayAverageWeather.date}
+                            icon={DayAverageWeather.icon}
+                            averageTemp={DayAverageWeather.averageTemp}
+                            minTemp={DayAverageWeather.minTemp}
+                            maxTemp={DayAverageWeather.maxTemp}
+                            weather={DayAverageWeather.weather}
+                            weekDay={DayAverageWeather.weekDay} />
                         )}
                     </Animated.View>
                 }
