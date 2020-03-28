@@ -1,4 +1,4 @@
-import { GET_GEO_LOCATION, GET_SKY_TYPE, GET_API_RESPONSE } from "./MeteorActionsTypes";
+import { GET_GEO_LOCATION, GET_GEO_COORDINATES, GET_SKY_TYPE, GET_API_RESPONSE } from "./MeteorActionsTypes";
 
 export function getGeoLocation(geoLocation) {
     return {
@@ -7,6 +7,12 @@ export function getGeoLocation(geoLocation) {
     }
 }
 
+export function getGeoCoordinates(geoCoordinates) {
+    return {
+        type: GET_GEO_COORDINATES,
+        geoCoordinates: geoCoordinates
+    }
+}
 export function getSkyType(skyType) {
     return {
         type: GET_SKY_TYPE,

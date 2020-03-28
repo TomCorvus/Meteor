@@ -209,6 +209,13 @@ class FiveDaysWidget extends React.Component {
                 useNativeDriver: true
             }).start();
             this.getFiveDaysWeather(this.props.geoLocation);
+        } else if (prevProps.geoCoordinates !== this.props.geoCoordinates) {
+            Animated.timing(this.state.opacity, {
+                toValue: 0,
+                duration: 0,
+                useNativeDriver: true
+            }).start();
+            this.getFiveDaysWeatherByCoordinate(this.props.geoCoordinates);
         }
     }
 
@@ -220,7 +227,8 @@ class FiveDaysWidget extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        geoLocation: state.geoLocation
+        geoLocation: state.geoLocation,
+        geoCoordinates: state.geoCoordinates,
     }
 }
 

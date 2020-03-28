@@ -1,5 +1,6 @@
 var stateInit = {
     geoLocation: String,
+    geoCoordinates: "",
     skyType: String,
     apiResponse: Number
 }
@@ -10,6 +11,12 @@ export default function MeteorReducer(state = stateInit, action) {
             return {
                 ...state,
                 geoLocation: action.geoLocation
+            }
+        }     
+        case 'GET_GEO_COORDINATES': {
+            return {
+                ...state,
+                geoCoordinates: action.geoCoordinates
             }
         }
         case 'GET_SKY_TYPE': {

@@ -64,28 +64,41 @@ class DayWidget extends React.Component {
 
         let windOrientation;
 
-        if (windDegree >= 0 && windDegree < 22.5) {
-            windOrientation = 'N';
-        } else if (windDegree >= 22.5 && windDegree < 67.5) {
-            windOrientation = 'NE';
-        } else if (windDegree >= 67.5 && windDegree < 112.5) {
-            windOrientation = 'E';
-        } else if (windDegree >= 112.5 && windDegree < 157.5) {
-            windOrientation = 'SE';
-        } else if (windDegree >= 157.5 && windDegree < 202.5) {
-            windOrientation = 'S';
-        } else if (windDegree >= 202.5 && windDegree < 247.5) {
-            windOrientation = 'SO';
-        } else if (windDegree >= 247.5 && windDegree < 292.5) {
-            windOrientation = 'O';
-        } else if (windDegree >= 292.5 && windDegree < 337.5) {
+        if (windDegree > 0 && windDegree < 45) {
+            windOrientation = 'N NE';
+        } else if (windDegree > 45 && windDegree < 90) {
+            windOrientation = 'E NE';
+        } else if (windDegree > 90 && windDegree < 135) {
+            windOrientation = 'E SE';
+        } else if (windDegree > 135 && windDegree < 180) {
+            windOrientation = 'S SE';
+        } else if (windDegree > 180 && windDegree < 225) {
+            windOrientation = 'S SO';
+        } else if (windDegree > 225 && windDegree < 270) {
+            windOrientation = 'O SO';
+        } else if (windDegree > 270 && windDegree < 315) {
+            windOrientation = 'O NO';
+        } else if (windDegree > 315 && windDegree < 360) {
+            windOrientation = 'N NO';
+        } else if (windDegree === 0 || windDegree === 360) {
             windOrientation = 'NO';
-        } else if (windDegree >= 337.5 && windDegree <= 360) {
-            windOrientation = 'N';
+        } else if (windDegree === 45) {
+            windOrientation = 'NE';
+        } else if (windDegree === 90) {
+            windOrientation = 'E';
+        } else if (windDegree === 135) {
+            windOrientation = 'SE';
+        } else if (windDegree === 180) {
+            windOrientation = 'S';
+        } else if (windDegree === 225) {
+            windOrientation = 'SO';
+        } else if (windDegree === 270) {
+            windOrientation = 'O';
+        } else if (windDegree === 315) {
+            windOrientation = 'NO';
         }
 
         return windOrientation;
-
 
     }
 
@@ -135,16 +148,24 @@ class DayWidget extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
+       
         if (prevProps.geoLocation !== this.props.geoLocation) {
-
             Animated.timing(this.state.opacity, {
                 toValue: 0,
                 duration: 0,
                 useNativeDriver: true
             }).start();
-
             this.getDataByGeoLocation(this.props.geoLocation);
+
+        } else if (prevProps.geoCoordinates !== this.props.geoCoordinates) {
+            Animated.timing(this.state.opacity, {
+                toValue: 0,
+                duration: 0,
+                useNativeDriver: true
+            }).start();
+            this.getDataByGeoCoordinates(this.props.geoCoordinates);
         }
+
     }
 
     render() {
@@ -256,7 +277,8 @@ class DayWidget extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        geoLocation: state.geoLocation
+        geoLocation: state.geoLocation,
+        geoCoordinates: state.geoCoordinates,
     }
 }
 
