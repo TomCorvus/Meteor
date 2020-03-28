@@ -13,8 +13,15 @@ class BackgroundImage extends Component {
             imageSrc: "",
             opacity: new Animated.Value(0),
             nextImageSrc: "",
-            nextImageOpacity: new Animated.Value(0)
+            nextImageOpacity: new Animated.Value(0),
+            displayedImage: 1,
+            currentSkyType: "",
+            skyTypeList: []
         };
+    }
+
+    addToSkyTypeList(skyType) {
+        this.state.skyTypeList.push(skyType);
     }
 
     getSkyValue(backgroundImage) {
@@ -74,28 +81,130 @@ class BackgroundImage extends Component {
     }
 
     onLoad = () => {
-        Animated.timing(this.state.opacity, {
-            toValue: 1,
-            duration: 500,
+
+        console.log("load first");
+
+        Animated.timing(this.state.nextImageOpacity, {
+            toValue: 0,
+            duration: 800,
             useNativeDriver: true
         }).start();
+
+        Animated.timing(this.state.opacity, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true
+        }).start(() => {
+            this.setState({
+                displayedImage: 1
+            });
+        });
+
     }
 
+    onUpdate = () => {
+
+        console.log("update first");
+
+        Animated.timing(this.state.nextImageOpacity, {
+            toValue: 0,
+            duration: 800,
+            useNativeDriver: true
+        }).start();
+
+        Animated.timing(this.state.opacity, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true
+        }).start(() => {
+            this.setState({
+                displayedImage: 1
+            });
+        });
+    }
+
+    onNextLoad = () => {
+
+        console.log("load next");
+
+        Animated.timing(this.state.opacity, {
+            toValue: 0,
+            duration: 600,
+            useNativeDriver: true
+        }).start();
+
+        Animated.timing(this.state.nextImageOpacity, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true
+        }).start(() => {
+            this.setState({
+                displayedImage: 2
+            });
+        });
+    }
+
+    onNextUpdate = () => {
+
+        console.log("update next");
+
+        Animated.timing(this.state.nextImageOpacity, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true
+        }).start(() => {
+            Animated.timing(this.state.opacity, {
+                toValue: 0,
+                duration: 600,
+                useNativeDriver: true
+            }).start();
+            this.setState({
+                displayedImage: 2
+            });
+        });
+    }
+
+
     componentDidUpdate(prevProps) {
+
         if (prevProps.skyType !== this.props.skyType) {
 
+            let imageAlreadyExist;
 
-            if (this.state.imageSrc === "" && this.state.nextImageSrc === "") {
-                this.setState({
-                    imageSrc: this.getSkyValue(this.props.skyType),
-                    opacity: new Animated.Value(1),
-                });
+            if (this.state.skyTypeList.indexOf(this.props.skyType) === -1) {
+                this.state.skyTypeList.push(this.props.skyType);
+                imageAlreadyExist = false;
+            } else {
+                imageAlreadyExist = true;
             }
 
-            if (this.getSkyValue(this.props.skyType) !== this.state.imageSrc) {
+            if (this.state.imageSrc === "") {
                 this.setState({
-                    nextImageSrc: this.getSkyValue(this.props.skyType)
+                    imageSrc: this.getSkyValue(this.props.skyType),
+                    currentSkyType: this.props.skyType
                 });
+            } else if (this.state.nextImageSrc === "" && this.state.displayedImage === 1) {
+                this.setState({
+                    nextImageSrc: this.getSkyValue(this.props.skyType),
+                    currentSkyType: this.props.skyType
+                });
+            } else if (this.getSkyValue(this.props.skyType) !== this.state.imageSrc && this.state.displayedImage === 1) {
+                this.setState({
+                    nextImageSrc: this.getSkyValue(this.props.skyType),
+                    currentSkyType: this.props.skyType
+                });
+                if (imageAlreadyExist === true) {
+                    this.onNextUpdate();
+                }
+
+            } else if (this.getSkyValue(this.props.skyType) !== this.state.nextImageSrc && this.state.displayedImage === 2) {
+                this.setState({
+                    imageSrc: this.getSkyValue(this.props.skyType),
+                    currentSkyType: this.props.skyType
+                });
+                if (imageAlreadyExist === true) {
+                    this.onUpdate();
+                }
             }
 
         }
@@ -103,43 +212,16 @@ class BackgroundImage extends Component {
 
     render() {
 
-        if (this.state.imageSrc !== this.state.nextImageSrc) {
-
-            Animated.timing(this.state.opacity, {
-                toValue: 0,
-                duration: 1000,
-                useNativeDriver: true
-            }).start();
-
-            Animated.timing(this.state.nextImageOpacity, {
-                toValue: 1,
-                duration: 600,
-                delay: 300,
-                useNativeDriver: true
-            }).start(() => {
-                this.setState({
-                    imageSrc: this.state.nextImageSrc
-                })
-                Animated.timing(this.state.opacity, {
-                    toValue: 1,
-                    duration: 0,
-                    useNativeDriver: true
-                }).start(() => {
-                    Animated.timing(this.state.nextImageOpacity, {
-                        toValue: 0,
-                        duration: 0,
-                        delay: 2000,
-                        useNativeDriver: true
-                    }).start();
-                });
-            });
-
-        }
-
         return (
-            <>
+            <View style={{
+                position: 'absolute', bottom: 0,
+                left: 0,
+                width: '100%',
+                height: '100%', zIndex: 0
+            }}>
                 <View
                     style={{
+                        flex: 1,
                         position: 'absolute',
                         bottom: 0,
                         left: 0,
@@ -150,6 +232,7 @@ class BackgroundImage extends Component {
                 >
                     {this.state.imageSrc !== "" &&
                         <Animated.Image
+                            key={1}
                             style={{
                                 flex: 1,
                                 opacity: this.state.opacity
@@ -163,27 +246,30 @@ class BackgroundImage extends Component {
                 </View>
                 <View
                     style={{
+                        flex: 1,
                         position: 'absolute',
                         bottom: 0,
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        zIndex: 0
+                        zIndex: 1
                     }}
                 >
                     {this.state.nextImageSrc !== "" &&
                         <Animated.Image
+                            key={2}
                             style={{
                                 flex: 1,
                                 opacity: this.state.nextImageOpacity
                             }}
                             resizeMode='cover'
+                            onLoad={this.onNextLoad}
                             source={this.state.nextImageSrc}
                             blurRadius={9}
                         />
                     }
                 </View>
-            </>
+            </View>
         );
     }
 }
