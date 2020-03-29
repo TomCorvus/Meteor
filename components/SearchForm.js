@@ -52,7 +52,8 @@ class SearchForm extends React.Component {
             let apiResponse = parseInt(this.props.apiResponse);
 
             if (apiResponse === 200) {
-                this.setState({ message: "" })
+                this.setState({ message: "" });
+                this.textInput.clear();
             } else if (apiResponse === 404) {
                 this.setState({ message: "Aucun résultat." })
             }
@@ -65,17 +66,17 @@ class SearchForm extends React.Component {
                 <View style={styles.SearchFormWrapper}>
                     <View style={styles.SearchFormInputWrapper}>
                         <TextInput
-                        ref={input => { this.textInput = input }}
-                        onSubmitEditing={(event) => this.onSubmitEdit(event)}
-                        autoCorrect={false}
-                        style={styles.SearchFormInput}
-                        placeholder="Saisir la ville ou le code postal"
-                        keyboardType= "web-search"></TextInput>
+                            ref={input => { this.textInput = input }}
+                            onSubmitEditing={(event) => this.onSubmitEdit(event)}
+                            autoCorrect={false}
+                            style={styles.SearchFormInput}
+                            placeholder="Saisir la ville ou le code postal"
+                            keyboardType="web-search"></TextInput>
                     </View>
                     <TouchableHighlight
-                    onPress={(event) => this.onPress(event)}
-                    activeOpacity={0.6}
-                    underlayColor="transparent">
+                        onPress={(event) => this.onPress(event)}
+                        activeOpacity={0.6}
+                        underlayColor="transparent">
                         <View style={styles.SearchFormButton}>
                             <MaterialIcons name="my-location" size={20} color="#4f4f4f" />
                         </View>
