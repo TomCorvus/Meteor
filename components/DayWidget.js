@@ -155,8 +155,8 @@ class DayWidget extends React.Component {
             var maxTemp = Math.round(this.state.dayInformation.main.temp_max);
             var feelsLike = Math.round(this.state.dayInformation.main.feels_like);
 
-            var sunriseTime = this.getFormatTimeFromUTC(this.state.dayInformation.sys.sunrise);
-            var sunsetTime = this.getFormatTimeFromUTC(this.state.dayInformation.sys.sunset);
+            var sunriseTime = this.getFormatTimeFromUTC(this.state.dayInformation.sys.sunrise + this.state.dayInformation.timezone);
+            var sunsetTime = this.getFormatTimeFromUTC(this.state.dayInformation.sys.sunset + this.state.dayInformation.timezone);
 
             var windSpeed = Math.round(this.getWindSpeedInKilometerPerHour(this.state.dayInformation.wind.speed));
             var windOrientation = this.getWindOrientation(this.state.dayInformation.wind.deg);

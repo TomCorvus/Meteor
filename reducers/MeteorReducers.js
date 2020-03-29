@@ -9,11 +9,11 @@ var stateInit = {
         let today = new Date(),
             dd = String(today.getDate()).padStart(2, '0'),
             mm = String(today.getMonth() + 1).padStart(2, '0'),
-            yyyy = today.getFullYear();
-
-        let formatTodayDate = mm + '-' + dd + '-' + yyyy;
+            yyyy = today.getFullYear(),
+            formatTodayDate = mm + '-' + dd + '-' + yyyy;
+            
         return formatTodayDate;
-    },
+    }
 }
 
 export default function MeteorReducer(state = stateInit, action) {
