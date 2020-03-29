@@ -59,8 +59,6 @@ class ForecastWidget extends React.Component {
         weekday[5] = "Vendredi";
         weekday[6] = "Samedi";
 
-        console.log(daysList);
-
         daysList.forEach((element) => {
 
             let timestamp = element.dt,

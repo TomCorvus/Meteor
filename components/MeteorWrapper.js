@@ -33,12 +33,16 @@ class MeteorWrapper extends React.Component {
 
     componentDidUpdate(prevProps) {
 
-        if (this.props.apiDayResponse === 200 && this.props.apiForecastResponse === 200) {
-            this.props.getApiResponse(200);
-        } else if (this.props.apiDayResponse === 404 || this.props.apiForecastResponse === 404) {
-            this.props.getApiResponse(404);
-        } else if (this.props.apiDayResponse === 0 || this.props.apiForecastResponse === 0) {
-            this.props.getApiResponse(0);
+        if (this.props.apiResponse === -1) {
+
+            if (this.props.apiDayResponse === 200 && this.props.apiForecastResponse === 200) {
+                this.props.getApiResponse(200);
+            } else if (this.props.apiDayResponse === 404 || this.props.apiForecastResponse === 404) {
+                this.props.getApiResponse(404);
+            } else if (this.props.apiDayResponse === 0 || this.props.apiForecastResponse === 0) {
+                this.props.getApiResponse(0);
+            }
+
         }
 
     }

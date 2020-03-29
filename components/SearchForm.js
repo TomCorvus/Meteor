@@ -89,13 +89,13 @@ class SearchForm extends React.Component {
         if (this.state.searchInProgress) {
             Animated.timing(this.state.loaderOpacity, {
                 toValue: 1,
-                duration: 300,
+                duration: 100,
                 useNativeDriver: true
             }).start();
         } else {
             Animated.timing(this.state.loaderOpacity, {
                 toValue: 0,
-                duration: 500,
+                duration: 600,
                 useNativeDriver: true
             }).start();
         }
