@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 
-export default class FiveDaysElement extends React.Component {
+export default class ForecastElement extends React.Component {
 
     constructor(props) {
         super(props);
@@ -10,17 +10,17 @@ export default class FiveDaysElement extends React.Component {
     render() {
 
         return (
-            <View style={styles.container} >
-                <Text style={styles.weekDay}>{this.props.weekDay}</Text>
-                <View style={styles.iconWrapper}>
+            <View style={forecastElementStyles.container} >
+                <Text style={forecastElementStyles.weekDay}>{this.props.weekDay}</Text>
+                <View style={forecastElementStyles.iconWrapper}>
                     <Image
-                        style={styles.icon}
+                        style={forecastElementStyles.icon}
                         source={{ uri: "http://openweathermap.org/img/wn/" + this.props.icon + "@2x.png" }}
                     />
                 </View>
-                <View style={styles.temperatureWrapper}>
-                    <Text style={styles.maxTemp}>{this.props.maxTemp}°</Text>
-                    <Text style={styles.minTemp}>{this.props.minTemp}°</Text>
+                <View style={forecastElementStyles.temperatureWrapper}>
+                    <Text style={forecastElementStyles.maxTemp}>{this.props.maxTemp}°</Text>
+                    <Text style={forecastElementStyles.minTemp}>{this.props.minTemp}°</Text>
                 </View>
             </View>
         )
@@ -28,7 +28,7 @@ export default class FiveDaysElement extends React.Component {
 
 }
 
-const styles = StyleSheet.create({
+const forecastElementStyles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: "row",

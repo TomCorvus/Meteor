@@ -1,10 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, Animated } from 'react-native';
 import { connect } from "react-redux";
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import * as Location from 'expo-location';
-import * as Permissions from 'expo-permissions';
-import { getSkyType, getApiResponse } from "../actions/MeteorActions";
+import { getSkyType, getApiDayResponse } from "../actions/MeteorActions";
 
 class DayWidget extends React.Component {
 
@@ -22,17 +19,17 @@ class DayWidget extends React.Component {
         return fetch('http://api.openweathermap.org/data/2.5/weather?q=' + geoLocation + '&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr')
             .then((response) => response.json())
             .then((JSON) => {
+
                 if (JSON.cod === 200) {
                     let skyType = JSON.weather[0].main.toLowerCase();
-
                     this.setState({ dayInformation: JSON });
                     this.props.getSkyType(skyType);
-
                 }
-                this.props.getApiResponse(JSON.cod);
+                this.props.getApiDayResponse(JSON.cod);
+
             })
             .catch((error) => {
-                console.error(error);
+                this.props.getApiDayResponse(0);
             });
 
     }
@@ -45,17 +42,17 @@ class DayWidget extends React.Component {
         return fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
             .then((response) => response.json())
             .then((JSON) => {
+
                 if (JSON.cod === 200) {
                     let skyType = JSON.weather[0].main.toLowerCase();
-
                     this.setState({ dayInformation: JSON });
                     this.props.getSkyType(skyType);
-
                 }
-                this.props.getApiResponse(JSON.cod);
+                this.props.getApiDayResponse(JSON.cod);
+
             })
             .catch((error) => {
-                console.error(error);
+                this.props.getApiDayResponse(0);
             });
 
     }
@@ -117,23 +114,6 @@ class DayWidget extends React.Component {
 
     }
 
-    getLocationAsync = async () => {
-
-        let { status } = await Permissions.askAsync(Permissions.LOCATION);
-
-        if (status !== 'granted') {
-
-            this.setState({
-                errorMessage: 'Permission to access location was denied',
-            });
-        }
-
-        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation });
-
-        this.getDataByGeoCoordinates(location.coords);
-
-    };
-
     getFormatTimeFromUTC(timestamp) {
         let date = new Date(timestamp * 1000),
             ho = (date.getHours() < 10 ? '0' : '') + date.getHours(),
@@ -144,25 +124,24 @@ class DayWidget extends React.Component {
     }
 
     componentDidMount() {
-        this.getLocationAsync();
     }
 
     componentDidUpdate(prevProps) {
-       
-        if (prevProps.geoLocation !== this.props.geoLocation) {
-            Animated.timing(this.state.opacity, {
-                toValue: 0,
-                duration: 0,
-                useNativeDriver: true
-            }).start();
-            this.getDataByGeoLocation(this.props.geoLocation);
 
-        } else if (prevProps.geoCoordinates !== this.props.geoCoordinates) {
+        if (prevProps.geoLocation !== this.props.geoLocation || prevProps.geoCoordinates !== this.props.geoCoordinates) {
+
+            this.props.getApiDayResponse(-1);
             Animated.timing(this.state.opacity, {
                 toValue: 0,
                 duration: 0,
                 useNativeDriver: true
             }).start();
+
+        }
+
+        if (prevProps.geoLocation !== this.props.geoLocation) {
+            this.getDataByGeoLocation(this.props.geoLocation);
+        } else if (prevProps.geoCoordinates !== this.props.geoCoordinates) {
             this.getDataByGeoCoordinates(this.props.geoCoordinates);
         }
 
@@ -186,82 +165,82 @@ class DayWidget extends React.Component {
 
             Animated.timing(this.state.opacity, {
                 toValue: 1,
-                duration: 500,
-                delay: 600,
+                duration: 400,
+                delay: 500,
                 useNativeDriver: true
             }).start();
 
         }
 
         return (
-            <View style={styles.container}>
+            <View style={dayWidgetStyles.container}>
                 {this.state.dayInformation !== undefined &&
-                    <Animated.View style={{ ...styles.widget, opacity: this.state.opacity }}>
+                    <Animated.View style={{ ...dayWidgetStyles.widget, opacity: this.state.opacity }}>
 
-                        <View style={styles.header}>
-                            <Text style={styles.city}>{this.state.dayInformation.name}</Text>
-                            <Text style={styles.description}>{this.state.dayInformation.weather[0].description}</Text>
+                        <View style={dayWidgetStyles.header}>
+                            <Text style={dayWidgetStyles.city}>{this.state.dayInformation.name}</Text>
+                            <Text style={dayWidgetStyles.description}>{this.state.dayInformation.weather[0].description}</Text>
                         </View>
 
-                        <View style={styles.iconWrapper}>
-                            <Text style={styles.temperature}>{Math.round(this.state.dayInformation.main.temp)}°</Text>
-                            <Image style={styles.icon} source={{ uri: "http://openweathermap.org/img/wn/" + this.state.dayInformation.weather[0].icon + "@2x.png" }} />
+                        <View style={dayWidgetStyles.iconWrapper}>
+                            <Text style={dayWidgetStyles.temperature}>{Math.round(this.state.dayInformation.main.temp)}°</Text>
+                            <Image style={dayWidgetStyles.icon} source={{ uri: "http://openweathermap.org/img/wn/" + this.state.dayInformation.weather[0].icon + "@2x.png" }} />
                         </View>
 
-                        <View style={styles.infoWrapper}>
+                        <View style={dayWidgetStyles.infoWrapper}>
 
-                            <View style={styles.infoRow}>
-                                <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}>Minimum</Text>
-                                    <Text style={styles.infoBoxValue}>{minTemp}°</Text>
+                            <View style={dayWidgetStyles.infoRow}>
+                                <View style={dayWidgetStyles.infoBox}>
+                                    <Text style={dayWidgetStyles.infoBoxTitle}>Minimum</Text>
+                                    <Text style={dayWidgetStyles.infoBoxValue}>{minTemp}°</Text>
                                 </View>
-                                <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}>Maximum</Text>
-                                    <Text style={styles.infoBoxValue}>{maxTemp}°</Text>
+                                <View style={dayWidgetStyles.infoBox}>
+                                    <Text style={dayWidgetStyles.infoBoxTitle}>Maximum</Text>
+                                    <Text style={dayWidgetStyles.infoBoxValue}>{maxTemp}°</Text>
                                 </View>
                             </View>
 
-                            <View style={styles.infoRow}>
-                                <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}>Visibilité</Text>
-                                    <Text style={styles.infoBoxValue}>{visibility}km</Text>
+                            <View style={dayWidgetStyles.infoRow}>
+                                <View style={dayWidgetStyles.infoBox}>
+                                    <Text style={dayWidgetStyles.infoBoxTitle}>Visibilité</Text>
+                                    <Text style={dayWidgetStyles.infoBoxValue}>{visibility}km</Text>
                                 </View>
-                                <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}>Ressenti</Text>
-                                    <Text style={styles.infoBoxValue}>{feelsLike}°</Text>
-                                </View>
-                            </View>
-
-                            <View style={styles.infoRow}>
-                                <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}>Pression</Text>
-                                    <Text style={styles.infoBoxValue}>{this.state.dayInformation.main.pressure}hPa</Text>
-                                </View>
-                                <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}>Humidité</Text>
-                                    <Text style={styles.infoBoxValue}>{this.state.dayInformation.main.humidity}%</Text>
+                                <View style={dayWidgetStyles.infoBox}>
+                                    <Text style={dayWidgetStyles.infoBoxTitle}>Ressenti</Text>
+                                    <Text style={dayWidgetStyles.infoBoxValue}>{feelsLike}°</Text>
                                 </View>
                             </View>
 
-                            <View style={styles.infoRow}>
-                                <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}>Vent</Text>
-                                    <Text style={styles.infoBoxValue}>{windSpeed}km/h</Text>
+                            <View style={dayWidgetStyles.infoRow}>
+                                <View style={dayWidgetStyles.infoBox}>
+                                    <Text style={dayWidgetStyles.infoBoxTitle}>Pression</Text>
+                                    <Text style={dayWidgetStyles.infoBoxValue}>{this.state.dayInformation.main.pressure}hPa</Text>
                                 </View>
-                                <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}>Orientation</Text>
-                                    <Text style={styles.infoBoxValue}>{windOrientation} {this.state.dayInformation.wind.deg}deg</Text>
+                                <View style={dayWidgetStyles.infoBox}>
+                                    <Text style={dayWidgetStyles.infoBoxTitle}>Humidité</Text>
+                                    <Text style={dayWidgetStyles.infoBoxValue}>{this.state.dayInformation.main.humidity}%</Text>
                                 </View>
                             </View>
 
-                            <View style={styles.infoRow}>
-                                <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}>Lever</Text>
-                                    <Text style={styles.infoBoxValue}>{sunriseTime}</Text>
+                            <View style={dayWidgetStyles.infoRow}>
+                                <View style={dayWidgetStyles.infoBox}>
+                                    <Text style={dayWidgetStyles.infoBoxTitle}>Vent</Text>
+                                    <Text style={dayWidgetStyles.infoBoxValue}>{windSpeed}km/h</Text>
                                 </View>
-                                <View style={styles.infoBox}>
-                                    <Text style={styles.infoBoxTitle}>Coucher</Text>
-                                    <Text style={styles.infoBoxValue}>{sunsetTime}</Text>
+                                <View style={dayWidgetStyles.infoBox}>
+                                    <Text style={dayWidgetStyles.infoBoxTitle}>Orientation</Text>
+                                    <Text style={dayWidgetStyles.infoBoxValue}>{windOrientation} {this.state.dayInformation.wind.deg}deg</Text>
+                                </View>
+                            </View>
+
+                            <View style={dayWidgetStyles.infoRow}>
+                                <View style={dayWidgetStyles.infoBox}>
+                                    <Text style={dayWidgetStyles.infoBoxTitle}>Lever</Text>
+                                    <Text style={dayWidgetStyles.infoBoxValue}>{sunriseTime}</Text>
+                                </View>
+                                <View style={dayWidgetStyles.infoBox}>
+                                    <Text style={dayWidgetStyles.infoBoxTitle}>Coucher</Text>
+                                    <Text style={dayWidgetStyles.infoBoxValue}>{sunsetTime}</Text>
                                 </View>
                             </View>
 
@@ -278,7 +257,7 @@ class DayWidget extends React.Component {
 function mapStateToProps(state) {
     return {
         geoLocation: state.geoLocation,
-        geoCoordinates: state.geoCoordinates,
+        geoCoordinates: state.geoCoordinates
     }
 }
 
@@ -288,14 +267,14 @@ function mapDispatchToProps(dispatch) {
             let action = getSkyType(skyType);
             dispatch(action);
         },
-        getApiResponse: function (apiResponse) {
-            var action = getApiResponse(apiResponse);
+        getApiDayResponse: function (apiDayResponse) {
+            var action = getApiDayResponse(apiDayResponse);
             dispatch(action);
         }
     }
 }
 
-const styles = StyleSheet.create({
+const dayWidgetStyles = StyleSheet.create({
     container: {},
     widget: {},
     header: {

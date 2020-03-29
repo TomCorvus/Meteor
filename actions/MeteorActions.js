@@ -1,4 +1,4 @@
-import { GET_GEO_LOCATION, GET_GEO_COORDINATES, GET_SKY_TYPE, GET_API_RESPONSE } from "./MeteorActionsTypes";
+import { GET_GEO_LOCATION, GET_GEO_COORDINATES, GET_SKY_TYPE, GET_API_RESPONSE, GET_DAY_RESPONSE, GET_FORECAST_RESPONSE } from "./MeteorActionsTypes";
 
 export function getGeoLocation(geoLocation) {
     return {
@@ -24,5 +24,19 @@ export function getApiResponse(apiResponse) {
     return {
         type: GET_API_RESPONSE,
         apiResponse: apiResponse
+    }
+}
+
+export function getApiDayResponse(apiDayResponse) {
+    return {
+        type: GET_DAY_RESPONSE,
+        apiDayResponse: apiDayResponse
+    }
+}
+
+export function getApiForecastResponse(apiForecastResponse) {
+    return {
+        type: GET_FORECAST_RESPONSE,
+        apiForecastResponse: apiForecastResponse
     }
 }

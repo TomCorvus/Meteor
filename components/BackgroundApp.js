@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import {
     View,
-    Animated
+    Animated,
+    StyleSheet
 } from 'react-native';
 import { connect } from "react-redux";
 
@@ -17,10 +18,6 @@ class BackgroundImage extends Component {
             displayedImage: 1,
             skyTypeList: []
         };
-    }
-
-    addToSkyTypeList(skyType) {
-        this.state.skyTypeList.push(skyType);
     }
 
     getSkyValue(backgroundImage) {
@@ -83,13 +80,13 @@ class BackgroundImage extends Component {
 
         Animated.timing(this.state.frontImageOpacity, {
             toValue: 0,
-            duration: 800,
+            duration: 500,
             useNativeDriver: true
         }).start();
 
         Animated.timing(this.state.backImageOpacity, {
             toValue: 1,
-            duration: 600,
+            duration: 400,
             useNativeDriver: true
         }).start(() => {
             this.setState({
@@ -103,20 +100,20 @@ class BackgroundImage extends Component {
 
         Animated.timing(this.state.backImageOpacity, {
             toValue: 0,
-            duration: 600,
+            duration: 500,
             useNativeDriver: true
         }).start();
 
         Animated.timing(this.state.frontImageOpacity, {
             toValue: 1,
-            duration: 600,
+            duration: 400,
             useNativeDriver: true
         }).start(() => {
             this.setState({
                 displayedImage: 2
             });
         });
-        
+
     }
 
     componentDidUpdate(prevProps) {
@@ -162,23 +159,8 @@ class BackgroundImage extends Component {
     render() {
 
         return (
-            <View style={{
-                position: 'absolute', bottom: 0,
-                left: 0,
-                width: '100%',
-                height: '100%', zIndex: 0
-            }}>
-                <View
-                    style={{
-                        flex: 1,
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        zIndex: 0
-                    }}
-                >
+            <View style={backgroundStyles.backgroundsWrapper}>
+                <View style={backgroundStyles.backBackgroundWrapper}>
                     {this.state.backImageSrc !== "" &&
                         <Animated.Image
                             key={1}
@@ -193,17 +175,7 @@ class BackgroundImage extends Component {
                         />
                     }
                 </View>
-                <View
-                    style={{
-                        flex: 1,
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        zIndex: 1
-                    }}
-                >
+                <View style={backgroundStyles.frontBackgroundWrapper}>
                     {this.state.frontImageSrc !== "" &&
                         <Animated.Image
                             key={2}
@@ -221,6 +193,7 @@ class BackgroundImage extends Component {
             </View>
         );
     }
+    
 }
 
 function mapStateToProps(state) {
@@ -232,5 +205,34 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {}
 }
+
+const backgroundStyles = StyleSheet.create({
+    backgroundsWrapper: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 0
+    },
+    backBackgroundWrapper: {
+        flex: 1,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 0
+    },
+    frontBackgroundWrapper: {
+        flex: 1,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 1
+    },
+});
 
 export default connect(mapStateToProps, null)(BackgroundImage);

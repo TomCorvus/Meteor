@@ -2,7 +2,9 @@ var stateInit = {
     geoLocation: String,
     geoCoordinates: "",
     skyType: String,
-    apiResponse: Number
+    apiResponse: -1,
+    apiDayResponse: -1,
+    apiForecastResponse: -1,
 }
 
 export default function MeteorReducer(state = stateInit, action) {
@@ -12,7 +14,7 @@ export default function MeteorReducer(state = stateInit, action) {
                 ...state,
                 geoLocation: action.geoLocation
             }
-        }     
+        }
         case 'GET_GEO_COORDINATES': {
             return {
                 ...state,
@@ -29,6 +31,18 @@ export default function MeteorReducer(state = stateInit, action) {
             return {
                 ...state,
                 apiResponse: action.apiResponse
+            }
+        }
+        case 'GET_DAY_RESPONSE': {
+            return {
+                ...state,
+                apiDayResponse: action.apiDayResponse
+            }
+        }
+        case 'GET_FORECAST_RESPONSE': {
+            return {
+                ...state,
+                apiForecastResponse: action.apiForecastResponse
             }
         }
         default:
