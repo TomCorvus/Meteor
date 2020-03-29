@@ -5,6 +5,15 @@ var stateInit = {
     apiResponse: -1,
     apiDayResponse: -1,
     apiForecastResponse: -1,
+    todayDate: function () {
+        let today = new Date(),
+            dd = String(today.getDate()).padStart(2, '0'),
+            mm = String(today.getMonth() + 1).padStart(2, '0'),
+            yyyy = today.getFullYear();
+
+        let formatTodayDate = mm + '-' + dd + '-' + yyyy;
+        return formatTodayDate;
+    },
 }
 
 export default function MeteorReducer(state = stateInit, action) {

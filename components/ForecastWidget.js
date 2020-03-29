@@ -59,6 +59,8 @@ class ForecastWidget extends React.Component {
         weekday[5] = "Vendredi";
         weekday[6] = "Samedi";
 
+        console.log(daysList);
+
         daysList.forEach((element) => {
 
             let timestamp = element.dt,
@@ -67,17 +69,19 @@ class ForecastWidget extends React.Component {
                 ye = date.getFullYear(),
                 mo = date.getMonth() + 1,
                 da = date.getDate(),
+                ho = (date.getHours() < 10 ? '0' : '') + date.getHours(),
+                mi = (date.getMinutes() < 10 ? '0' : '') + date.getMinutes(),
                 formatDate = `${da}-${mo}-${ye}`,
                 weather = element.weather[0].description,
-                icon = element.weather[0].icon;
+                icon = element.weather[0].icon,
+                formatTime = `${ho}:${mi}`;
 
-            if (!forecastInformationPerDay[n]) {
+
+            if (!forecastInformationPerDay[n] && n !== this.props.todayDate()) {
                 forecastInformationPerDay[n] = {
                     id: n,
                     date: formatDate,
                     weekDay: wd,
-                    weather: weather,
-                    icon: icon,
                     temp: [],
                     averageTemp: 0,
                     minTemp: 0,
@@ -88,6 +92,11 @@ class ForecastWidget extends React.Component {
             forecastInformationPerDay[n]["temp"].push(
                 element.main.temp
             );
+
+            if (formatTime == "14:00") {
+                forecastInformationPerDay[n].weather = weather;
+                forecastInformationPerDay[n].icon = icon;
+            }
 
             forecastInformationPerDay[n].averageTemp = Math.round(this.getAverageTemperature(forecastInformationPerDay[n].temp));
             forecastInformationPerDay[n].minTemp = Math.round(this.getMinimumTemperature(forecastInformationPerDay[n].temp));
@@ -212,7 +221,8 @@ class ForecastWidget extends React.Component {
 function mapStateToProps(state) {
     return {
         geoLocation: state.geoLocation,
-        geoCoordinates: state.geoCoordinates
+        geoCoordinates: state.geoCoordinates,
+        todayDate: state.todayDate
     }
 }
 
