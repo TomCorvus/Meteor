@@ -17,6 +17,7 @@ class SearchForm extends React.Component {
             message: ""
         }
         this.onSubmitEdit.bind(this);
+        this.getGeoCoordinates.bind(this);
 
     }
 
@@ -61,16 +62,12 @@ class SearchForm extends React.Component {
                 });
             }
             this.props.getGeoCoordinates({ longitude: "", latitude: "" });
+        } else {
+
+            let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation });
+            this.props.getGeoCoordinates(location.coords);
         }
 
-        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation });
-
-        this.props.getGeoCoordinates(location.coords);
-
-    }
-
-    componentDidMount() {
-        this.getGeoCoordinates();
     }
 
     componentDidUpdate(prevProps) {
@@ -103,6 +100,10 @@ class SearchForm extends React.Component {
 
         }
 
+    }
+
+    componentDidMount() {
+        this.getGeoCoordinates();
     }
 
     render() {

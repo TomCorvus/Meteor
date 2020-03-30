@@ -7,11 +7,11 @@ var stateInit = {
     apiForecastResponse: -1,
     todayDate: function () {
         let today = new Date(),
-            dd = String(today.getDate()).padStart(2, '0'),
-            mm = String(today.getMonth() + 1).padStart(2, '0'),
-            yyyy = today.getFullYear(),
-            formatTodayDate = mm + '-' + dd + '-' + yyyy;
-            
+            da = (today.getDate() < 10 ? '0' : '') + today.getDate(),
+            mo = (today.getMonth() < 10 ? '0' : '') + (today.getMonth() + 1),
+            ye = today.getFullYear(),
+            formatTodayDate = `${da}-${mo}-${ye}`;
+
         return formatTodayDate;
     }
 }

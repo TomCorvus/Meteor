@@ -59,6 +59,8 @@ class ForecastWidget extends React.Component {
         weekday[5] = "Vendredi";
         weekday[6] = "Samedi";
 
+        var todayDate = this.props.todayDate();
+
         daysList.forEach((element) => {
 
             let timestamp = element.dt,
@@ -74,36 +76,40 @@ class ForecastWidget extends React.Component {
                 icon = element.weather[0].icon,
                 formatTime = `${ho}:${mi}`;
 
-            if (!forecastInformationPerDay[n] && n !== this.props.todayDate()) {
-                forecastInformationPerDay[n] = {
-                    id: n,
-                    date: formatDate,
-                    weekDay: wd,
-                    temp: [],
-                    averageTemp: 0,
-                    minTemp: 0,
-                    maxTemp: 0
+            if (formatDate !== todayDate) {
+
+                if (!forecastInformationPerDay[n]) {
+                    forecastInformationPerDay[n] = {
+                        id: n,
+                        date: formatDate,
+                        weekDay: wd,
+                        temp: [],
+                        averageTemp: 0,
+                        minTemp: 0,
+                        maxTemp: 0
+                    }
+                } else {
+                    forecastInformationPerDay[n]["temp"].push(
+                        element.main.temp
+                    );
+
+                    if (element.sys.pod === "d") {
+                        forecastInformationPerDay[n].weather = weather;
+                        forecastInformationPerDay[n].icon = icon;
+                    }
+
+                    forecastInformationPerDay[n].averageTemp = Math.round(this.getAverageTemperature(forecastInformationPerDay[n].temp));
+                    forecastInformationPerDay[n].minTemp = Math.round(this.getMinimumTemperature(forecastInformationPerDay[n].temp));
+                    forecastInformationPerDay[n].maxTemp = Math.round(this.getMaximumTemperature(forecastInformationPerDay[n].temp));
                 }
+
+                if (formatDate !== previousDate && previousDate !== null && formatDate !== todayDate) {
+                    n++;
+                }
+
+                previousDate = `${da}-${mo}-${ye}`;
+
             }
-
-            forecastInformationPerDay[n]["temp"].push(
-                element.main.temp
-            );
-
-            if (element.sys.pod === "d") {
-                forecastInformationPerDay[n].weather = weather;
-                forecastInformationPerDay[n].icon = icon;
-            }
-
-            forecastInformationPerDay[n].averageTemp = Math.round(this.getAverageTemperature(forecastInformationPerDay[n].temp));
-            forecastInformationPerDay[n].minTemp = Math.round(this.getMinimumTemperature(forecastInformationPerDay[n].temp));
-            forecastInformationPerDay[n].maxTemp = Math.round(this.getMaximumTemperature(forecastInformationPerDay[n].temp));
-
-            if (formatDate !== previousDate && previousDate !== null) {
-                n++;
-            }
-
-            previousDate = `${da}-${mo}-${ye}`;
 
         });
 
