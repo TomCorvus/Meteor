@@ -22,6 +22,11 @@ class DayWidget extends React.Component {
 
                 if (JSON.cod === 200) {
                     let skyType = JSON.weather[0].main.toLowerCase();
+
+                    if(JSON.weather[0].icon.includes('n')) {
+                        skyType = "night"
+                    }
+
                     this.setState({ dayInformation: JSON });
                     this.props.getSkyType(skyType);
                 }
@@ -44,7 +49,13 @@ class DayWidget extends React.Component {
             .then((JSON) => {
 
                 if (JSON.cod === 200) {
+
                     let skyType = JSON.weather[0].main.toLowerCase();
+
+                    if(JSON.weather[0].icon.includes('n')) {
+                        skyType = "night"
+                    }
+
                     this.setState({ dayInformation: JSON });
                     this.props.getSkyType(skyType);
                 }
@@ -78,7 +89,7 @@ class DayWidget extends React.Component {
         } else if (windDegree > 315 && windDegree < 360) {
             windOrientation = 'N NO';
         } else if (windDegree === 0 || windDegree === 360) {
-            windOrientation = 'NO';
+            windOrientation = 'N';
         } else if (windDegree === 45) {
             windOrientation = 'NE';
         } else if (windDegree === 90) {

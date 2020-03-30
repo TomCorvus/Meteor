@@ -90,7 +90,7 @@ class ForecastWidget extends React.Component {
                 element.main.temp
             );
 
-            if (formatTime == "14:00") {
+            if (element.sys.pod === "d") {
                 forecastInformationPerDay[n].weather = weather;
                 forecastInformationPerDay[n].icon = icon;
             }

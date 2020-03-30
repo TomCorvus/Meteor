@@ -68,6 +68,9 @@ class BackgroundImage extends Component {
             case "squall":
                 backgroundImage = require(`../assets/squall.jpg`);
                 break;
+            case "night":
+                backgroundImage = require(`../assets/night.jpg`);
+                break;
             default:
                 return "";
         }
@@ -193,7 +196,7 @@ class BackgroundImage extends Component {
             </View>
         );
     }
-    
+
 }
 
 function mapStateToProps(state) {

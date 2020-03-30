@@ -17,6 +17,7 @@ class SearchForm extends React.Component {
             message: ""
         }
         this.onSubmitEdit.bind(this);
+
     }
 
     onSubmitEdit(event) {
@@ -29,11 +30,19 @@ class SearchForm extends React.Component {
 
     }
 
-    async onPress(event) {
+    handlerOnPress(event) {
+
+        this.textInput.clear();
 
         this.state = {
             searchInProgress: true
         }
+
+        this.getGeoCoordinates();
+
+    }
+
+    async getGeoCoordinates() {
 
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
 
@@ -43,8 +52,6 @@ class SearchForm extends React.Component {
                 errorMessage: 'Permission to access location was denied'
             });
         }
-
-        this.textInput.clear();
 
         let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation });
 
@@ -120,7 +127,7 @@ class SearchForm extends React.Component {
                         </View>
                     </View>
                     <TouchableHighlight
-                        onPress={(event) => this.onPress(event)}
+                        onPress={(event) => this.handlerOnPress(event)}
                         activeOpacity={0.6}
                         underlayColor="transparent">
                         <View style={searchFormStyles.SearchFormButton}>
