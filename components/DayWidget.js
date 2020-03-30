@@ -23,7 +23,7 @@ class DayWidget extends React.Component {
                 if (JSON.cod === 200) {
                     let skyType = JSON.weather[0].main.toLowerCase();
 
-                    if(JSON.weather[0].icon.includes('n')) {
+                    if (JSON.weather[0].icon.includes('n')) {
                         skyType = "night"
                     }
 
@@ -44,27 +44,32 @@ class DayWidget extends React.Component {
         let latitude = geoCoordinates.latitude;
         let longitude = geoCoordinates.longitude;
 
-        return fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
-            .then((response) => response.json())
-            .then((JSON) => {
+        if (longitude !== "" && latitude !== "") {
+            return fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
+                .then((response) => response.json())
+                .then((JSON) => {
 
-                if (JSON.cod === 200) {
+                    if (JSON.cod === 200) {
 
-                    let skyType = JSON.weather[0].main.toLowerCase();
+                        let skyType = JSON.weather[0].main.toLowerCase();
 
-                    if(JSON.weather[0].icon.includes('n')) {
-                        skyType = "night"
+                        if (JSON.weather[0].icon.includes('n')) {
+                            skyType = "night"
+                        }
+
+                        this.setState({ dayInformation: JSON });
+                        this.props.getSkyType(skyType);
                     }
+                    this.props.getApiDayResponse(JSON.cod);
 
-                    this.setState({ dayInformation: JSON });
-                    this.props.getSkyType(skyType);
-                }
-                this.props.getApiDayResponse(JSON.cod);
-
-            })
-            .catch((error) => {
-                this.props.getApiDayResponse(0);
-            });
+                })
+                .catch((error) => {
+                    this.props.getApiDayResponse(0);
+                });
+        } else {
+            this.props.getApiDayResponse(400);
+            this.props.getSkyType();
+        }
 
     }
 

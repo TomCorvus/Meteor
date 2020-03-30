@@ -72,7 +72,7 @@ class BackgroundImage extends Component {
                 backgroundImage = require(`../assets/night.jpg`);
                 break;
             default:
-                return "";
+                backgroundImage = require(`../assets/default.jpg`);
         }
 
         return backgroundImage;

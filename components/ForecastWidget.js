@@ -138,22 +138,29 @@ class ForecastWidget extends React.Component {
         let latitude = geoCoordinates.latitude;
         let longitude = geoCoordinates.longitude;
 
-        fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
-            .then((response) => response.json())
-            .then((JSON) => {
+        if (longitude !== "" && latitude !== "") {
 
-                if (parseInt(JSON.cod) === 200) {
+            fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=8e0aa08480209a1c3a435e0adad76904&units=metric&lang=fr`)
+                .then((response) => response.json())
+                .then((JSON) => {
 
-                    let daysList = this.getAverageWeather(JSON.list);
-                    this.setState({ forecastInformation: JSON, forecastInformationPerDay: daysList })
+                    if (parseInt(JSON.cod) === 200) {
 
-                }
-                this.props.getApiForecastResponse(parseInt(JSON.cod));
+                        let daysList = this.getAverageWeather(JSON.list);
+                        this.setState({ forecastInformation: JSON, forecastInformationPerDay: daysList })
 
-            })
-            .catch((error) => {
-                this.props.getApiForecastResponse(0);
-            });
+                    }
+                    this.props.getApiForecastResponse(parseInt(JSON.cod));
+
+                })
+                .catch((error) => {
+                    this.props.getApiForecastResponse(0);
+                });
+
+        } else {
+            this.props.getApiForecastResponse(400);
+        }
+
 
     }
 
@@ -236,8 +243,7 @@ const forecastWidgetStyles = StyleSheet.create({
     container: {
         justifyContent: "space-around",
         paddingTop: 10,
-        paddingBottom: 10,
-        flex: 1
+        paddingBottom: 10
     },
     widget: {
     }

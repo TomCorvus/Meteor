@@ -41,6 +41,8 @@ class MeteorWrapper extends React.Component {
                 this.props.getApiResponse(404);
             } else if (this.props.apiDayResponse === 0 || this.props.apiForecastResponse === 0) {
                 this.props.getApiResponse(0);
+            } else if (this.props.apiDayResponse === 400 || this.props.apiForecastResponse === 400) {
+                this.props.getApiResponse(400);
             }
 
         }
@@ -89,7 +91,12 @@ function mapDispatchToProps(dispatch) {
 
 const meteorWrapperStyles = StyleSheet.create({
     meteorContainer: {
-        flex: 1
+        flex: 1,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%"
     }
 });
 

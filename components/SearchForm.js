@@ -32,25 +32,35 @@ class SearchForm extends React.Component {
 
     handlerOnPress(event) {
 
+        let pressedButton = true;
+
         this.textInput.clear();
 
-        this.state = {
+        this.setState({
             searchInProgress: true
-        }
+        });
 
-        this.getGeoCoordinates();
+        this.getGeoCoordinates(pressedButton);
 
     }
 
-    async getGeoCoordinates() {
+    async getGeoCoordinates(pressedButton) {
 
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
 
         if (status !== 'granted') {
-            this.setState({
-                searchInProgress: false,
-                errorMessage: 'Permission to access location was denied'
-            });
+
+            if (pressedButton) {
+                this.setState({
+                    searchInProgress: false,
+                    message: "Vous n'avez pas autorisé l'application à accéder à vos coordonnées géographiques"
+                });
+            } else {
+                this.setState({
+                    searchInProgress: false
+                });
+            }
+            this.props.getGeoCoordinates({ longitude: "", latitude: "" });
         }
 
         let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation });
@@ -59,9 +69,13 @@ class SearchForm extends React.Component {
 
     }
 
+    componentDidMount() {
+        this.getGeoCoordinates();
+    }
+
     componentDidUpdate(prevProps) {
 
-        if (prevProps.geoCoordinates !== this.props.geoCoordinates || prevProps.geoLocation !== this.props.geoLocation) {
+        if (prevProps.geoCoordinates !== this.props.geoCoordinates && this.props.geoCoordinates.latitude !== "" && this.props.geoCoordinates.longitude !== "" || prevProps.geoLocation !== this.props.geoLocation) {
             this.props.getApiResponse(-1);
             this.setState({
                 searchInProgress: true
