@@ -65,15 +65,14 @@ class ForecastWidget extends React.Component {
                 date = new Date(timestamp * 1000),
                 wd = weekday[date.getDay()],
                 ye = date.getFullYear(),
-                mo = date.getMonth() + 1,
-                da = date.getDate(),
+                mo = (date.getMonth() < 10 ? '0' : '') + (date.getMonth() + 1),
+                da = (date.getDate() < 10 ? '0' : '') + date.getDate(),
                 ho = (date.getHours() < 10 ? '0' : '') + date.getHours(),
                 mi = (date.getMinutes() < 10 ? '0' : '') + date.getMinutes(),
                 formatDate = `${da}-${mo}-${ye}`,
                 weather = element.weather[0].description,
                 icon = element.weather[0].icon,
                 formatTime = `${ho}:${mi}`;
-
 
             if (!forecastInformationPerDay[n] && n !== this.props.todayDate()) {
                 forecastInformationPerDay[n] = {
