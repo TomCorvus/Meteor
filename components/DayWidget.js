@@ -68,7 +68,7 @@ class DayWidget extends React.Component {
                 });
         } else {
             this.props.getApiDayResponse(400);
-            this.props.getSkyType();
+            this.props.getSkyType("default");
         }
 
     }
